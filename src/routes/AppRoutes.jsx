@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import RoleSelect from "../pages/common/RoleSelect";
 
 import StudentLayout from "../layouts/StudentLayout";
 import Dashboard from "../pages/student/Dashboard";
@@ -9,8 +10,7 @@ function AppRoutes() {
     <BrowserRouter>
       <Routes>
 
-        {/* TEST ROUTE */}
-        <Route path="/" element={<h1>HOME WORKING</h1>} />
+        <Route path="/" element={<RoleSelect />} />
 
         {/* STUDENT ROUTES */}
         <Route path="/student" element={<StudentLayout />}>
