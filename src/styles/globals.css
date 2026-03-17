@@ -151,3 +151,35 @@ a{
         grid-template-columns: 1fr;
     }
 }
+
+.auth-card {
+    background: rgba(255,255,255,0.95);
+    padding: 40px;
+    border-radius: 16px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+.mobile-only {
+    display: none;
+}
+
+.desktop-only {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .auth-card {
+        padding: 24px;
+    }
+    .mobile-only {
+        display: block !important;
+    }
+    .desktop-only {
+        display: none !important;
+    }
+}

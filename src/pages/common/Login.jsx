@@ -25,7 +25,7 @@ function Login() {
             </div>
 
             {/* CARD */}
-            <div style={cardStyle}>
+            <div className="auth-card" style={cardStyle}>
 
                 <img src={logo} alt="logo" style={logoStyle} />
 
@@ -93,16 +93,7 @@ const bgStyle = {
 };
 
 const cardStyle = {
-    background: "rgba(255,255,255,0.95)",
-    padding: "40px",
-    borderRadius: "16px",
-    width: "100%",
-    maxWidth: "340px",
-    textAlign: "center",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-    position: "relative",
-    zIndex: 1,
-    boxSizing: "border-box"
+    maxWidth: "340px"
 };
 
 const logoStyle = {

@@ -42,17 +42,9 @@ function RoleSelect() {
 
             <img src={logo} alt="Logo" style={{ maxHeight: "100px", marginBottom: "20px", zIndex: 1, position: "relative" }} />
 
-            <div style={{
-                background: "#fff",
-                padding: "40px",
-                borderRadius: "12px",
+            <div className="auth-card" style={{
                 border: "1px solid #E2E8F0",
-                width: "100%",
                 maxWidth: "350px",
-                textAlign: "center",
-                zIndex: 1,
-                position: "relative",
-                boxSizing: "border-box"
             }}>
 
                 <h2 style={{ marginBottom: "20px" }}>Select Your Role</h2>
