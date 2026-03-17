@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/Logo.png";
 import Particles from "../../components/Particles";
-
+import Login from "./Login";
 
 function RoleSelect() {
     const navigate = useNavigate();
 
     const roles = [
-        { name: "Student", path: "/student/dashboard" },
-        { name: "Teacher", path: "/teacher/dashboard" },
-        { name: "HOD", path: "/hod/dashboard" }
+        { name: "Student", path: "/register?role=student" },
+        { name: "Teacher", path: "/register?role=teacher" },
+        { name: "HOD", path: "/" }
     ];
 
     return (
