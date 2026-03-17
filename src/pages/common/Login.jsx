@@ -81,24 +81,28 @@ export default Login;
 /* ---------------- STYLES ---------------- */
 
 const bgStyle = {
-    height: "100vh",
+    minHeight: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     background: "#0f172a", // Dark background so white particles are visible
     position: "relative",
-    overflow: "hidden"
+    overflow: "hidden",
+    padding: "20px",
+    boxSizing: "border-box"
 };
 
 const cardStyle = {
     background: "rgba(255,255,255,0.95)",
     padding: "40px",
     borderRadius: "16px",
-    width: "340px",
+    width: "100%",
+    maxWidth: "340px",
     textAlign: "center",
     boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
     position: "relative",
-    zIndex: 1
+    zIndex: 1,
+    boxSizing: "border-box"
 };
 
 const logoStyle = {

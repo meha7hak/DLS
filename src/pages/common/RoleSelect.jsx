@@ -14,14 +14,16 @@ function RoleSelect() {
 
     return (
         <div style={{
-            height: "100vh",
+            minHeight: "100vh",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
             background: "#ffffff",
             position: "relative",
-            overflow: "hidden"
+            overflow: "hidden",
+            padding: "20px",
+            boxSizing: "border-box"
         }}>
 
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
@@ -45,10 +47,12 @@ function RoleSelect() {
                 padding: "40px",
                 borderRadius: "12px",
                 border: "1px solid #E2E8F0",
-                width: "350px",
+                width: "100%",
+                maxWidth: "350px",
                 textAlign: "center",
                 zIndex: 1,
-                position: "relative"
+                position: "relative",
+                boxSizing: "border-box"
             }}>
 
                 <h2 style={{ marginBottom: "20px" }}>Select Your Role</h2>

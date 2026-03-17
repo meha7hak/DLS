@@ -102,7 +102,7 @@ function Register() {
 
                 <form onSubmit={handleRegister}>
                     {/* GRID LAYOUT START */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                    <div className="register-grid">
 
                         {/* ROW 1: Shared Name and conditional second column */}
                         <div style={{width: '100%'}}>
@@ -310,12 +310,13 @@ const cardStyle = {
     background: "rgba(255,255,255,0.95)",
     padding: "40px",
     borderRadius: "16px",
-    width: "700px",
-    maxWidth: "90%",
+    width: "100%",
+    maxWidth: "700px",
     textAlign: "center",
     boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
     position: "relative",
-    zIndex: 1
+    zIndex: 1,
+    boxSizing: "border-box"
 };
 
 const logoStyle = {

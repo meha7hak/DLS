@@ -137,3 +137,17 @@ a{
     @apply font-sans;
     }
 }
+
+/* Custom Responsive Classes */
+.register-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+    .register-grid {
+        grid-template-columns: 1fr;
+    }
+}
