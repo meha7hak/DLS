@@ -12,6 +12,7 @@ import FacultyDashboard from "../pages/faculty/Dashboard";
 import FacultyProfile from "../pages/faculty/Profile";
 import HodDashboard from "../pages/hod/Dashboard";
 import HodProfile from "../pages/hod/Profile";
+import HodRegister from "../pages/hod/Register";
 
 function AppRoutes() {
   return (
@@ -21,6 +22,7 @@ function AppRoutes() {
         <Route path="/" element={<Login />} />
         <Route path="/role-select" element={<RoleSelect />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/hod/register" element={<HodRegister />} />
 
         {/* STUDENT ROUTES */}
         <Route path="/student" element={<StudentLayout />}>
