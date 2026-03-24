@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { EyeIcon } from "../../components/ui/eye";
+import { EyeClosedIcon } from "../../components/ui/eye-closed";
 import logo from "../../assets/Logo.png";
 import Particles from "../../components/Particles";
 
@@ -11,6 +13,10 @@ function Login() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
+
+    // Password Visibility State
+    const [showPassword, setShowPassword] = useState(false);
+    const pwEyeRef = useRef(null);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -34,8 +40,13 @@ function Login() {
                 localStorage.setItem("userInfo", JSON.stringify(data));
 
                 // Redirect user based on their role setup
-                // For now, redirecting all to student dash as per current routing
-                navigate("/student/dashboard");
+                if (data.role === 'faculty' || data.role === 'teacher') {
+                    navigate("/faculty/dashboard");
+                } else if (data.role === 'hod') {
+                    navigate("/hod/dashboard");
+                } else {
+                    navigate("/student/dashboard");
+                }
             } else {
                 setErrorMsg(data.message || "Invalid credentials");
             }
@@ -106,13 +117,27 @@ function Login() {
                         />
                     )}
 
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        style={inputStyle}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div style={{ position: "relative", width: '100%' }}>
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            style={{ ...inputStyle, paddingRight: "40px" }}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button
+                            type="button"
+                            style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}
+                            onClick={() => setShowPassword(!showPassword)}
+                            title={showPassword ? "Hide Password" : "Show Password"}
+                        >
+                            {showPassword ? (
+                                <EyeIcon ref={pwEyeRef} size={20} />
+                            ) : (
+                                <EyeClosedIcon ref={pwEyeRef} size={20} />
+                            )}
+                        </button>
+                    </div>
 
                     <button type="submit" style={btnStyle}>
                         Login

@@ -70,7 +70,11 @@ export const login = async (req, res) => {
         }
 
         if (user && (await user.matchPassword(password))) {
-            if (user.role !== role) {
+            const hasValidRole = 
+                user.role === role || 
+                (role === "staff" && (user.role === "faculty" || user.role === "hod"));
+
+            if (!hasValidRole) {
                 return res.status(401).json({ message: "Role mismatch." });
             }
 
