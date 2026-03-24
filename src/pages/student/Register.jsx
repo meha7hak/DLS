@@ -41,7 +41,7 @@ function Register() {
     const pwEyeRef = useRef(null);
     const confirmPwEyeRef = useRef(null);
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setErrorMsg("");
 
@@ -72,8 +72,32 @@ function Register() {
             return;
         }
 
-        // Proceed to register (mock)
-        navigate("/");
+        try {
+            const payload = {
+                name,
+                email,
+                password,
+                role: role === 'teacher' ? 'faculty' : role,
+                rollno: role === 'student' ? rollNo : undefined,
+                department: role === 'student' ? branch : undefined,
+                semester: role === 'student' ? Number(semester) : Number(inchargeClass)
+            };
+
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                navigate("/");
+            } else {
+                setErrorMsg(data.message || "Registration failed");
+            }
+        } catch (err) {
+            setErrorMsg("Server error. Please try again later.");
+        }
     };
 
     const semesters = ["1", "2", "3", "4", "5", "6", "7", "8"];

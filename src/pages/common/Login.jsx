@@ -7,6 +7,43 @@ function Login() {
     const navigate = useNavigate();
     const [loginType, setLoginType] = useState("student"); // 'student' or 'staff'
 
+    // Auth States
+    const [identifier, setIdentifier] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setErrorMsg("");
+
+        if (!identifier || !password) {
+            setErrorMsg("Please enter both ID/Email and password.");
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ identifier, password, role: loginType })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("userInfo", JSON.stringify(data));
+
+                // Redirect user based on their role setup
+                // For now, redirecting all to student dash as per current routing
+                navigate("/student/dashboard");
+            } else {
+                setErrorMsg(data.message || "Invalid credentials");
+            }
+        } catch (err) {
+            setErrorMsg("Server error. Please try again later.");
+        }
+    };
+
     return (
         <div style={bgStyle}>
             {/* BACKGROUND ANIMATION */}
@@ -33,35 +70,54 @@ function Login() {
 
                 {/* ROLE TOGGLE */}
                 <div style={toggleContainerStyle}>
-                    <button 
+                    <button
+                        type="button"
                         style={loginType === 'student' ? activeToggleStyle : inactiveToggleStyle}
-                        onClick={() => setLoginType('student')}
+                        onClick={() => { setLoginType('student'); setIdentifier(""); }}
                     >
                         Student
                     </button>
-                    <button 
+                    <button
+                        type="button"
                         style={loginType === 'staff' ? activeToggleStyle : inactiveToggleStyle}
-                        onClick={() => setLoginType('staff')}
+                        onClick={() => { setLoginType('staff'); setIdentifier(""); }}
                     >
                         Teacher / HOD
                     </button>
                 </div>
 
-                {loginType === 'student' ? (
-                    <input placeholder="University Roll No" style={inputStyle} />
-                ) : (
-                    <input placeholder="Email Address" type="email" style={inputStyle} />
-                )}
+                {errorMsg && <p style={{ color: "red", fontSize: "14px", marginBottom: "15px" }}>{errorMsg}</p>}
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    style={inputStyle}
-                />
+                <form onSubmit={handleLogin}>
+                    {loginType === 'student' ? (
+                        <input
+                            placeholder="University Roll No"
+                            style={inputStyle}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                        />
+                    ) : (
+                        <input
+                            placeholder="Email Address"
+                            type="email"
+                            style={inputStyle}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                        />
+                    )}
 
-                <button style={btnStyle} onClick={() => navigate("/student/dashboard")}>
-                    Login
-                </button>
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        style={inputStyle}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+
+                    <button type="submit" style={btnStyle}>
+                        Login
+                    </button>
+                </form>
 
                 <p
                     style={backStyle}
@@ -93,7 +149,15 @@ const bgStyle = {
 };
 
 const cardStyle = {
-    maxWidth: "340px"
+    maxWidth: "340px",
+    width: "100%",
+    position: "relative",
+    zIndex: 1,
+    background: "#fff",
+    padding: "30px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    textAlign: "center"
 };
 
 const logoStyle = {
