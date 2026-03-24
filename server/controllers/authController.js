@@ -46,6 +46,10 @@ export const register = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                rollno: user.rollno,
+                employeeID: user.employeeID,
+                department: user.department,
+                semester: user.semester,
                 token: generateToken(user._id)
             });
         } else {
@@ -83,6 +87,10 @@ export const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                rollno: user.rollno,
+                employeeID: user.employeeID,
+                department: user.department,
+                semester: user.semester,
                 token: generateToken(user._id)
             });
         } else {

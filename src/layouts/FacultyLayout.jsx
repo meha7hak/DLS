@@ -1,10 +1,17 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { LayoutDashboard, Users, FileText, User, Menu } from "lucide-react";
+import { LayoutDashboard, Users, FileText, User, Menu, LogOut } from "lucide-react";
 import ShapeGrid from "../components/Background";
 
 function FacultyLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    navigate("/");
+  };
 
   return (
     <>
@@ -44,6 +51,30 @@ function FacultyLayout() {
         <NavItem to="/faculty/requests" icon={<FileText size={20}/>} isCollapsed={isCollapsed}>Requests</NavItem>
         <NavItem to="/faculty/students" icon={<Users size={20}/>} isCollapsed={isCollapsed}>My Students</NavItem>
         <NavItem to="/faculty/profile" icon={<User size={20}/>} isCollapsed={isCollapsed}>Profile</NavItem>
+
+        <div style={{ flex: 1 }}></div>
+
+        <button 
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: isCollapsed ? "center" : "flex-start",
+            gap: "10px",
+            padding: "10px",
+            borderRadius: "6px",
+            background: "#FEE2E2",
+            color: "#EF4444",
+            border: "none",
+            cursor: "pointer",
+            width: "100%",
+            transition: "all 0.2s ease"
+          }}
+          title={isCollapsed ? "Logout" : ""}
+        >
+          <LogOut size={20} />
+          {!isCollapsed && <span style={{ fontWeight: 500 }}>Logout</span>}
+        </button>
 
       </aside>
 

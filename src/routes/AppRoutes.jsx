@@ -5,10 +5,13 @@ import Register from "../pages/student/Register";
 import StudentLayout from "../layouts/StudentLayout";
 import Dashboard from "../pages/student/Dashboard";
 import ApplyLeave from "../pages/student/ApplyLeave";
+import StudentProfile from "../pages/student/Profile";
 import FacultyLayout from "../layouts/FacultyLayout";
 import HodLayout from "../layouts/HodLayout";
 import FacultyDashboard from "../pages/faculty/Dashboard";
+import FacultyProfile from "../pages/faculty/Profile";
 import HodDashboard from "../pages/hod/Dashboard";
+import HodProfile from "../pages/hod/Profile";
 
 function AppRoutes() {
   return (
@@ -23,16 +26,19 @@ function AppRoutes() {
         <Route path="/student" element={<StudentLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="apply" element={<ApplyLeave />} />
+          <Route path="profile" element={<StudentProfile />} />
         </Route>
 
         {/* FACULTY ROUTES */}
         <Route path="/faculty" element={<FacultyLayout />}>
           <Route path="dashboard" element={<FacultyDashboard />} />
+          <Route path="profile" element={<FacultyProfile />} />
         </Route>
 
         {/* HOD ROUTES */}
         <Route path="/hod" element={<HodLayout />}>
           <Route path="dashboard" element={<HodDashboard />} />
+          <Route path="profile" element={<HodProfile />} />
         </Route>
 
       </Routes>

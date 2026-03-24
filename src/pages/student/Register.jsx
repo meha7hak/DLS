@@ -21,17 +21,20 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    
+
     // Student Specific States
     const [rollNo, setRollNo] = useState("");
     const [branch, setBranch] = useState("");
     const [course, setCourse] = useState("");
     const [semester, setSemester] = useState("");
-    
+
     // Teacher Specific States
     const [inchargeClass, setInchargeClass] = useState("");
 
     const [errorMsg, setErrorMsg] = useState("");
+
+    // Accordion Control State (to auto-close and sync)
+    const [openAccordion, setOpenAccordion] = useState("");
 
     // Password Visibility States
     const [showPassword, setShowPassword] = useState(false);
@@ -129,30 +132,30 @@ function Register() {
                     <div className="register-grid">
 
                         {/* ROW 1: Shared Name and conditional second column */}
-                        <div style={{width: '100%'}}>
-                            <input 
-                                placeholder="Full Name" 
-                                style={{...inputStyle, marginBottom: 0}} 
+                        <div style={{ width: '100%' }}>
+                            <input
+                                placeholder="Full Name"
+                                style={{ ...inputStyle, marginBottom: 0 }}
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
 
                         {role === 'student' ? (
-                            <div style={{width: '100%'}}>
-                                <input 
-                                    placeholder="University Roll No" 
-                                    style={{...inputStyle, marginBottom: 0}} 
+                            <div style={{ width: '100%' }}>
+                                <input
+                                    placeholder="University Roll No"
+                                    style={{ ...inputStyle, marginBottom: 0 }}
                                     value={rollNo}
                                     onChange={(e) => setRollNo(e.target.value)}
                                 />
                             </div>
                         ) : (
-                            <div style={{width: '100%'}}>
-                                <input 
-                                    placeholder="Email Address" 
-                                    type="email" 
-                                    style={{...inputStyle, marginBottom: 0}} 
+                            <div style={{ width: '100%' }}>
+                                <input
+                                    placeholder="Email Address"
+                                    type="email"
+                                    style={{ ...inputStyle, marginBottom: 0 }}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -162,19 +165,19 @@ function Register() {
                         {/* ROW 2: Email and Course for Student, Incharge for Teacher */}
                         {role === 'student' ? (
                             <>
-                                <div style={{width: '100%'}}>
-                                    <input 
-                                        placeholder="Email Address" 
-                                        type="email" 
-                                        style={{...inputStyle, marginBottom: 0}} 
+                                <div style={{ width: '100%' }}>
+                                    <input
+                                        placeholder="Email Address"
+                                        type="email"
+                                        style={{ ...inputStyle, marginBottom: 0 }}
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
                                 </div>
-                                <div style={{width: '100%'}}>
-                                    <input 
-                                        placeholder="Course" 
-                                        style={{...inputStyle, marginBottom: 0}} 
+                                <div style={{ width: '100%' }}>
+                                    <input
+                                        placeholder="Course"
+                                        style={{ ...inputStyle, marginBottom: 0 }}
                                         value={course}
                                         onChange={(e) => setCourse(e.target.value)}
                                     />
@@ -184,17 +187,26 @@ function Register() {
                             <>
                                 {/* Teacher Row 2: Incharge Accordion Desktop */}
                                 <div className="desktop-only" style={{ gridColumn: '1 / -1' }}>
-                                    <Accordion type="single" collapsible style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        value={openAccordion === "incharge" ? "incharge" : ""}
+                                        onValueChange={(val) => setOpenAccordion(val ? "incharge" : "")}
+                                        style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
+                                    >
                                         <AccordionItem value="incharge" style={{ borderBottom: "none" }}>
                                             <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: inchargeClass ? "#000" : "#757575" }}>
                                                 {inchargeClass ? `Class Incharge of: Semester ${inchargeClass}` : "Class Incharge of ? (Select Semester)"}
                                             </AccordionTrigger>
                                             <AccordionContent style={{ padding: "0 12px 12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
                                                 {semesters.map((s) => (
-                                                    <div 
-                                                        key={s} 
+                                                    <div
+                                                        key={s}
                                                         style={{ padding: "8px", cursor: "pointer", textAlign: "center", background: inchargeClass === s ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
-                                                        onClick={() => setInchargeClass(s)}
+                                                        onClick={() => {
+                                                            setInchargeClass(s);
+                                                            setOpenAccordion("");
+                                                        }}
                                                     >
                                                         Semester {s}
                                                     </div>
@@ -205,8 +217,8 @@ function Register() {
                                 </div>
                                 {/* Teacher Row 2: Incharge Select Mobile */}
                                 <div className="mobile-only" style={{ gridColumn: '1 / -1' }}>
-                                    <select 
-                                        style={{...inputStyle, marginBottom: "16px", paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: inchargeClass ? "#000" : "#757575"}}
+                                    <select
+                                        style={{ ...inputStyle, marginBottom: "16px", paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: inchargeClass ? "#000" : "#757575" }}
                                         value={inchargeClass}
                                         onChange={(e) => setInchargeClass(e.target.value)}
                                     >
@@ -225,18 +237,27 @@ function Register() {
                                 {/* Desktop Accordions */}
                                 <div className="desktop-only" style={{ gridColumn: '1 / -1' }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        <div style={{width: '100%'}}>
-                                            <Accordion type="single" collapsible style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                                        <div style={{ width: '100%' }}>
+                                            <Accordion
+                                                type="single"
+                                                collapsible
+                                                value={openAccordion === "branch" ? "branch" : ""}
+                                                onValueChange={(val) => setOpenAccordion(val ? "branch" : "")}
+                                                style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
+                                            >
                                                 <AccordionItem value="branch" style={{ borderBottom: "none" }}>
                                                     <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: branch ? "#000" : "#757575" }}>
                                                         {branch ? `Branch: ${branch}` : "Select Branch"}
                                                     </AccordionTrigger>
                                                     <AccordionContent style={{ padding: "0 12px 12px" }}>
                                                         {branches.map((b) => (
-                                                            <div 
-                                                                key={b} 
+                                                            <div
+                                                                key={b}
                                                                 style={{ padding: "8px", cursor: "pointer", background: branch === b ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
-                                                                onClick={() => setBranch(b)}
+                                                                onClick={() => {
+                                                                    setBranch(b);
+                                                                    setOpenAccordion("");
+                                                                }}
                                                             >
                                                                 {b}
                                                             </div>
@@ -245,18 +266,27 @@ function Register() {
                                                 </AccordionItem>
                                             </Accordion>
                                         </div>
-                                        <div style={{width: '100%'}}>
-                                            <Accordion type="single" collapsible style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                                        <div style={{ width: '100%' }}>
+                                            <Accordion
+                                                type="single"
+                                                collapsible
+                                                value={openAccordion === "semester" ? "semester" : ""}
+                                                onValueChange={(val) => setOpenAccordion(val ? "semester" : "")}
+                                                style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
+                                            >
                                                 <AccordionItem value="semester" style={{ borderBottom: "none" }}>
                                                     <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: semester ? "#000" : "#757575" }}>
                                                         {semester ? `Semester: ${semester}` : "Select Semester"}
                                                     </AccordionTrigger>
                                                     <AccordionContent style={{ padding: "0 12px 12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
                                                         {semesters.map((s) => (
-                                                            <div 
-                                                                key={s} 
+                                                            <div
+                                                                key={s}
                                                                 style={{ padding: "8px", cursor: "pointer", textAlign: "center", background: semester === s ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
-                                                                onClick={() => setSemester(s)}
+                                                                onClick={() => {
+                                                                    setSemester(s);
+                                                                    setOpenAccordion("");
+                                                                }}
                                                             >
                                                                 Semester {s}
                                                             </div>
@@ -271,8 +301,8 @@ function Register() {
                                 {/* Mobile Native Selects */}
                                 <div className="mobile-only" style={{ gridColumn: '1 / -1' }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-                                        <select 
-                                            style={{...inputStyle, marginBottom: 0, paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: branch ? "#000" : "#757575"}}
+                                        <select
+                                            style={{ ...inputStyle, marginBottom: 0, paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: branch ? "#000" : "#757575" }}
                                             value={branch}
                                             onChange={(e) => setBranch(e.target.value)}
                                         >
@@ -281,9 +311,9 @@ function Register() {
                                                 <option key={b} value={b}>{b}</option>
                                             ))}
                                         </select>
-                                        
-                                        <select 
-                                            style={{...inputStyle, marginBottom: 0, paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: semester ? "#000" : "#757575"}}
+
+                                        <select
+                                            style={{ ...inputStyle, marginBottom: 0, paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: semester ? "#000" : "#757575" }}
                                             value={semester}
                                             onChange={(e) => setSemester(e.target.value)}
                                         >
@@ -302,12 +332,12 @@ function Register() {
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Create Password"
-                                style={{...inputStyle, marginBottom: 0, paddingRight: "40px", background: "#f8fafc"}}
+                                style={{ ...inputStyle, marginBottom: 0, paddingRight: "40px", background: "#f8fafc" }}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}
                                 onClick={() => setShowPassword(!showPassword)}
                                 title={showPassword ? "Hide Password" : "Show Password"}
@@ -324,12 +354,12 @@ function Register() {
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="Confirm Password"
-                                style={{...inputStyle, marginBottom: 0, paddingRight: "40px", background: "#f8fafc"}}
+                                style={{ ...inputStyle, marginBottom: 0, paddingRight: "40px", background: "#f8fafc" }}
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                             />
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 title={showConfirmPassword ? "Hide Password" : "Show Password"}
