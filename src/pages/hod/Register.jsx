@@ -23,7 +23,7 @@ function HodRegister() {
     const [errorMsg, setErrorMsg] = useState("");
 
     // Accordion Control State
-    const [openAccordion, setOpenAccordion] = useState("");
+    const [openSection, setOpenSection] = useState("");
 
     // Password Visibility States
     const [showPassword, setShowPassword] = useState(false);
@@ -43,8 +43,9 @@ function HodRegister() {
             return;
         }
 
-        if (password.length < 6) {
-            setErrorMsg("Password must be at least 6 characters long.");
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s]).{7,}$/;
+        if (!passwordRegex.test(password)) {
+            setErrorMsg("Password must be >6 chars, with at least 1 uppercase, 1 lowercase, and 1 special character.");
             return;
         }
 
@@ -79,7 +80,7 @@ function HodRegister() {
         }
     };
 
-    const departments = ["CSE"];
+    const departments = ["CSE", "IT"];
 
     return (
         <div style={bgStyle}>
@@ -128,8 +129,9 @@ function HodRegister() {
                             <Accordion
                                 type="single"
                                 collapsible
-                                value={openAccordion === "department" ? "department" : ""}
-                                onValueChange={(val) => setOpenAccordion(val ? "department" : "")}
+                                value={openSection}
+                                onValueChange={setOpenSection}
+                                className="w-full"
                                 style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
                             >
                                 <AccordionItem value="department" style={{ borderBottom: "none" }}>
@@ -143,7 +145,7 @@ function HodRegister() {
                                                 style={{ padding: "8px", cursor: "pointer", background: department === d ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
                                                 onClick={() => {
                                                     setDepartment(d);
-                                                    setOpenAccordion("");
+                                                    setOpenSection("");
                                                 }}
                                             >
                                                 {d}

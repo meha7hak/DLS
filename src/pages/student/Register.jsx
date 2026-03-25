@@ -33,8 +33,8 @@ function Register() {
 
     const [errorMsg, setErrorMsg] = useState("");
 
-    // Accordion Control State (to auto-close and sync)
-    const [openAccordion, setOpenAccordion] = useState("");
+    // Accordion Control State
+    const [openSection, setOpenSection] = useState("");
 
     // Password Visibility States
     const [showPassword, setShowPassword] = useState(false);
@@ -65,9 +65,15 @@ function Register() {
             return;
         }
 
+        if (role === 'hod' && !branch) {
+            setErrorMsg("Please select your department.");
+            return;
+        }
+
         // Password validation
-        if (password.length < 6) {
-            setErrorMsg("Password must be at least 6 characters long.");
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s]).{7,}$/;
+        if (!passwordRegex.test(password)) {
+            setErrorMsg("Password must be >6 chars, with at least 1 uppercase, 1 lowercase, and 1 special character.");
             return;
         }
         if (password !== confirmPassword) {
@@ -82,8 +88,8 @@ function Register() {
                 password,
                 role: role === 'teacher' ? 'faculty' : role,
                 rollno: role === 'student' ? rollNo : undefined,
-                department: role === 'student' ? branch : undefined,
-                semester: role === 'student' ? Number(semester) : Number(inchargeClass)
+                department: role !== 'teacher' ? branch : undefined,
+                semester: role === 'student' ? Number(semester) : (role === 'teacher' ? Number(inchargeClass) : undefined)
             };
 
             const res = await fetch("/api/auth/register", {
@@ -162,7 +168,7 @@ function Register() {
                             </div>
                         )}
 
-                        {/* ROW 2: Email and Course for Student, Incharge for Teacher */}
+                        {/* ROW 2: Email and Course for Student, Incharge for Teacher, Dept for HOD */}
                         {role === 'student' ? (
                             <>
                                 <div style={{ width: '100%' }}>
@@ -183,15 +189,16 @@ function Register() {
                                     />
                                 </div>
                             </>
-                        ) : (
+                        ) : role === 'teacher' ? (
                             <>
                                 {/* Teacher Row 2: Incharge Accordion Desktop */}
                                 <div className="desktop-only" style={{ gridColumn: '1 / -1' }}>
                                     <Accordion
                                         type="single"
                                         collapsible
-                                        value={openAccordion === "incharge" ? "incharge" : ""}
-                                        onValueChange={(val) => setOpenAccordion(val ? "incharge" : "")}
+                                        value={openSection}
+                                        onValueChange={setOpenSection}
+                                        className="w-full"
                                         style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
                                     >
                                         <AccordionItem value="incharge" style={{ borderBottom: "none" }}>
@@ -205,7 +212,7 @@ function Register() {
                                                         style={{ padding: "8px", cursor: "pointer", textAlign: "center", background: inchargeClass === s ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
                                                         onClick={() => {
                                                             setInchargeClass(s);
-                                                            setOpenAccordion("");
+                                                            setOpenSection("");
                                                         }}
                                                     >
                                                         Semester {s}
@@ -229,23 +236,70 @@ function Register() {
                                     </select>
                                 </div>
                             </>
+                        ) : (
+                            <>
+                                {/* HOD Row 2: Department Accordion Desktop */}
+                                <div className="desktop-only" style={{ gridColumn: '1 / -1' }}>
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        value={openSection}
+                                        onValueChange={setOpenSection}
+                                        className="w-full"
+                                        style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
+                                    >
+                                        <AccordionItem value="department" style={{ borderBottom: "none" }}>
+                                            <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: branch ? "#000" : "#757575" }}>
+                                                {branch ? `Department: ${branch}` : "Select Department"}
+                                            </AccordionTrigger>
+                                            <AccordionContent style={{ padding: "0 12px 12px" }}>
+                                                {branches.map((b) => (
+                                                    <div
+                                                        key={b}
+                                                        style={{ padding: "8px", cursor: "pointer", background: branch === b ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
+                                                        onClick={() => {
+                                                            setBranch(b);
+                                                            setOpenSection("");
+                                                        }}
+                                                    >
+                                                        {b}
+                                                    </div>
+                                                ))}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
+                                </div>
+                                {/* HOD Row 2: Department Select Mobile */}
+                                <div className="mobile-only" style={{ gridColumn: '1 / -1' }}>
+                                    <select
+                                        style={{ ...inputStyle, marginBottom: "16px", paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: branch ? "#000" : "#757575" }}
+                                        value={branch}
+                                        onChange={(e) => setBranch(e.target.value)}
+                                    >
+                                        <option value="" disabled>Select Department</option>
+                                        {branches.map(b => (
+                                            <option key={b} value={b}>{b}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </>
                         )}
 
                         {/* ROW 3: Branch and Semester for Student */}
                         {role === 'student' && (
                             <>
-                                {/* Desktop Accordions */}
+                                {/* Desktop Accordions Wrapper */}
                                 <div className="desktop-only" style={{ gridColumn: '1 / -1' }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        <div style={{ width: '100%' }}>
-                                            <Accordion
-                                                type="single"
-                                                collapsible
-                                                value={openAccordion === "branch" ? "branch" : ""}
-                                                onValueChange={(val) => setOpenAccordion(val ? "branch" : "")}
-                                                style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
-                                            >
-                                                <AccordionItem value="branch" style={{ borderBottom: "none" }}>
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        value={openSection}
+                                        onValueChange={setOpenSection}
+                                        className="w-full"
+                                    >
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                            <div style={{ width: '100%' }}>
+                                                <AccordionItem value="branch" style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0", borderBottom: "none" }}>
                                                     <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: branch ? "#000" : "#757575" }}>
                                                         {branch ? `Branch: ${branch}` : "Select Branch"}
                                                     </AccordionTrigger>
@@ -256,7 +310,7 @@ function Register() {
                                                                 style={{ padding: "8px", cursor: "pointer", background: branch === b ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
                                                                 onClick={() => {
                                                                     setBranch(b);
-                                                                    setOpenAccordion("");
+                                                                    setOpenSection("");
                                                                 }}
                                                             >
                                                                 {b}
@@ -264,17 +318,9 @@ function Register() {
                                                         ))}
                                                     </AccordionContent>
                                                 </AccordionItem>
-                                            </Accordion>
-                                        </div>
-                                        <div style={{ width: '100%' }}>
-                                            <Accordion
-                                                type="single"
-                                                collapsible
-                                                value={openAccordion === "semester" ? "semester" : ""}
-                                                onValueChange={(val) => setOpenAccordion(val ? "semester" : "")}
-                                                style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
-                                            >
-                                                <AccordionItem value="semester" style={{ borderBottom: "none" }}>
+                                            </div>
+                                            <div style={{ width: '100%' }}>
+                                                <AccordionItem value="semester" style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0", borderBottom: "none" }}>
                                                     <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: semester ? "#000" : "#757575" }}>
                                                         {semester ? `Semester: ${semester}` : "Select Semester"}
                                                     </AccordionTrigger>
@@ -285,7 +331,7 @@ function Register() {
                                                                 style={{ padding: "8px", cursor: "pointer", textAlign: "center", background: semester === s ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
                                                                 onClick={() => {
                                                                     setSemester(s);
-                                                                    setOpenAccordion("");
+                                                                    setOpenSection("");
                                                                 }}
                                                             >
                                                                 Semester {s}
@@ -293,9 +339,9 @@ function Register() {
                                                         ))}
                                                     </AccordionContent>
                                                 </AccordionItem>
-                                            </Accordion>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </Accordion>
                                 </div>
 
                                 {/* Mobile Native Selects */}

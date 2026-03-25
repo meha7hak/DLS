@@ -27,6 +27,12 @@ function Login() {
             return;
         }
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s]).{7,}$/;
+        if (!passwordRegex.test(password)) {
+            setErrorMsg("Password must be >6 chars, with at least 1 uppercase, 1 lowercase, and 1 special character.");
+            return;
+        }
+
         try {
             const res = await fetch("/api/auth/login", {
                 method: "POST",
