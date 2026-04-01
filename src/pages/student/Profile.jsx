@@ -3,7 +3,7 @@ import { User, Mail, GraduationCap, Building2, BookOpen, Camera, Key } from "luc
 
 function Profile() {
   const [userInfo, setUserInfo] = useState(null);
-  
+
   // Image Upload State
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -97,10 +97,8 @@ function Profile() {
 
   return (
     <div style={containerStyle}>
-      <h2 style={{ marginBottom: "30px", textAlign: "center", color: "#0f172a" }}>My Profile</h2>
-      
       <div style={cardStyle}>
-        
+
         {/* PROFILE HEADER START */}
         <div style={headerStyle}>
           <div style={{ position: "relative" }}>
@@ -111,24 +109,24 @@ function Profile() {
                 <User size={45} color="#0D9488" />
               )}
             </div>
-            <button 
-              style={cameraBtnStyle} 
+            <button
+              style={cameraBtnStyle}
               onClick={() => fileInputRef.current.click()}
               disabled={uploading}
               title="Upload new photo"
             >
               <Camera size={16} />
             </button>
-            <input 
-              type="file" 
-              accept="image/*" 
-              ref={fileInputRef} 
-              style={{ display: "none" }} 
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
               onChange={handleImageUpload}
             />
           </div>
-          {uploading && <p style={{fontSize: "12px", color: "#64748b", marginTop: "5px"}}>Uploading...</p>}
-          
+          {uploading && <p style={{ fontSize: "12px", color: "#64748b", marginTop: "5px" }}>Uploading...</p>}
+
           <h3 style={nameStyle}>{userInfo.name}</h3>
           <span style={roleStyle}>{userInfo.role}</span>
         </div>
@@ -188,30 +186,30 @@ function Profile() {
           ) : (
             <form onSubmit={handleChangePassword} className="animate-fade-in" style={formStyle}>
               <h4 style={{ marginBottom: "15px", color: "#1e293b" }}>Update Password</h4>
-              
-              <input 
-                type="password" 
-                placeholder="Old Password" 
-                style={inputStyle} 
-                required 
-                value={oldPassword} 
-                onChange={e => setOldPassword(e.target.value)} 
+
+              <input
+                type="password"
+                placeholder="Old Password"
+                style={inputStyle}
+                required
+                value={oldPassword}
+                onChange={e => setOldPassword(e.target.value)}
               />
-              <input 
-                type="password" 
-                placeholder="New Password" 
-                style={inputStyle} 
-                required 
-                value={newPassword} 
-                onChange={e => setNewPassword(e.target.value)} 
+              <input
+                type="password"
+                placeholder="New Password"
+                style={inputStyle}
+                required
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
               />
-              <input 
-                type="password" 
-                placeholder="Confirm New Password" 
-                style={inputStyle} 
-                required 
-                value={confirmPassword} 
-                onChange={e => setConfirmPassword(e.target.value)} 
+              <input
+                type="password"
+                placeholder="Confirm New Password"
+                style={inputStyle}
+                required
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
               />
 
               {passwordMsg.text && (
@@ -221,7 +219,7 @@ function Profile() {
               )}
 
               <div style={{ display: "flex", gap: "10px" }}>
-                <button type="button" style={{...submitBtnStyle, background: "#e2e8f0", color: "#334155"}} onClick={() => setShowPasswordForm(false)}>
+                <button type="button" style={{ ...submitBtnStyle, background: "#e2e8f0", color: "#334155" }} onClick={() => setShowPasswordForm(false)}>
                   Cancel
                 </button>
                 <button type="submit" style={submitBtnStyle} disabled={changingPassword}>
@@ -258,20 +256,20 @@ const cardStyle = {
 };
 
 const headerStyle = {
-  display: "flex", 
-  flexDirection: "column", 
-  alignItems: "center", 
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
   marginBottom: "30px",
   textAlign: "center"
 };
 
 const avatarStyle = {
-  width: "100px", 
-  height: "100px", 
-  borderRadius: "50%", 
-  background: "#CCFBF1", 
-  display: "flex", 
-  alignItems: "center", 
+  width: "100px",
+  height: "100px",
+  borderRadius: "50%",
+  background: "#CCFBF1",
+  display: "flex",
+  alignItems: "center",
   justifyContent: "center",
   boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
   overflow: "hidden"
@@ -302,17 +300,17 @@ const cameraBtnStyle = {
 
 const nameStyle = { margin: "15px 0 5px 0", fontSize: "24px", color: "#1e293b" };
 const roleStyle = {
-  background: "#e2e8f0", 
-  padding: "4px 12px", 
-  borderRadius: "20px", 
-  fontSize: "12px", 
+  background: "#e2e8f0",
+  padding: "4px 12px",
+  borderRadius: "20px",
+  fontSize: "12px",
   fontWeight: 600,
   color: "#475569",
   textTransform: "capitalize"
 };
 
 const gridStyle = {
-  display: "grid", 
+  display: "grid",
   gap: "20px"
 };
 
