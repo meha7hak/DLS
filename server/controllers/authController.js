@@ -100,3 +100,52 @@ export const login = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
+export const changePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (user && (await user.matchPassword(oldPassword))) {
+            user.password = newPassword;
+            await user.save();
+            res.json({ message: "Password updated successfully" });
+        } else {
+            res.status(400).json({ message: "Incorrect old password" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateProfilePic = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No image provided" });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (user) {
+            user.profilePic = req.file.path; // Cloudinary secure_url is returned here via multer-storage-cloudinary
+            const updatedUser = await user.save();
+            
+            res.json({
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                rollno: updatedUser.rollno,
+                employeeID: updatedUser.employeeID,
+                department: updatedUser.department,
+                semester: updatedUser.semester,
+                profilePic: updatedUser.profilePic,
+                token: generateToken(updatedUser._id)
+            });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};

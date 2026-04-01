@@ -111,7 +111,15 @@ function Login() {
                             placeholder="University Roll No"
                             style={inputStyle}
                             value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (!/^\d*$/.test(val)) {
+                                    setErrorMsg("only numeric input allowed");
+                                } else {
+                                    setErrorMsg("");
+                                    setIdentifier(val);
+                                }
+                            }}
                         />
                     ) : (
                         <input
@@ -200,7 +208,8 @@ const cardStyle = {
 
 const logoStyle = {
     width: "70px",
-    marginBottom: "15px"
+    display: "block",
+    margin: "0 auto 15px auto"
 };
 
 const inputStyle = {

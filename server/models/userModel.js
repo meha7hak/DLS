@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     employeeID: { type: String, unique: true, sparse: true },
     email: { type: String, unique: true, sparse: true },
     password: { type: String, required: true },
+    profilePic: { type: String },
     role: {
         type: String,
         enum: ["student", "faculty", "hod"],

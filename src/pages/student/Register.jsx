@@ -153,7 +153,15 @@ function Register() {
                                     placeholder="University Roll No"
                                     style={{ ...inputStyle, marginBottom: 0 }}
                                     value={rollNo}
-                                    onChange={(e) => setRollNo(e.target.value)}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (!/^\d*$/.test(val)) {
+                                            setErrorMsg("only numeric input allowed");
+                                        } else {
+                                            setErrorMsg("");
+                                            setRollNo(val);
+                                        }
+                                    }}
                                 />
                             </div>
                         ) : (
@@ -457,7 +465,8 @@ const cardStyle = {
 
 const logoStyle = {
     width: "80px",
-    marginBottom: "15px"
+    display: "block",
+    margin: "0 auto 15px auto"
 };
 
 const inputStyle = {
