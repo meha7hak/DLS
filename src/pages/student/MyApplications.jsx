@@ -95,7 +95,7 @@ function MyApplications() {
                       <strong style={{ color: "#334155" }}>Department:</strong> {leave.department}
                     </div>
                     <div>
-                      <strong style={{ color: "#334155" }}>Slots Requested:</strong> {leave.slots.join(", ")}
+                      <strong style={{ color: "#334155" }}>Slots Requested:</strong> {leave.slots ? leave.slots.join(", ") : "N/A"}
                     </div>
                     {leave.rejectionReason && (
                       <div style={{ gridColumn: "1 / -1", color: "#EF4444", marginTop: "4px", background: "#FEF2F2", padding: "6px 10px", borderRadius: "6px", border: "1px solid #FECACA" }}>

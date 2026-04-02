@@ -5,6 +5,7 @@ import Register from "../pages/student/Register";
 import StudentLayout from "../layouts/StudentLayout";
 import Dashboard from "../pages/student/Dashboard";
 import ApplyLeave from "../pages/student/ApplyLeave";
+import MyApplications from "../pages/student/MyApplications";
 import StudentProfile from "../pages/student/Profile";
 import FacultyLayout from "../layouts/FacultyLayout";
 import HodLayout from "../layouts/HodLayout";
@@ -28,6 +29,7 @@ function AppRoutes() {
         <Route path="/student" element={<StudentLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="apply" element={<ApplyLeave />} />
+          <Route path="applications" element={<MyApplications />} />
           <Route path="profile" element={<StudentProfile />} />
         </Route>
 
