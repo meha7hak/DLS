@@ -62,8 +62,8 @@ function Register() {
             return;
         }
 
-        if (role === 'teacher' && !inchargeClass) {
-            setErrorMsg("Please select the class you are incharge of.");
+        if (role === 'teacher' && (!inchargeClass || !branch)) {
+            setErrorMsg("Please select the department and class you are incharge of.");
             return;
         }
 
@@ -90,7 +90,7 @@ function Register() {
                 password,
                 role: role === 'teacher' ? 'faculty' : role,
                 rollno: role === 'student' ? rollNo : undefined,
-                department: role !== 'teacher' ? branch : undefined,
+                department: branch,
                 semester: role === 'student' ? Number(semester) : (role === 'teacher' ? Number(inchargeClass) : undefined)
             };
 
@@ -112,7 +112,7 @@ function Register() {
     };
 
     const semesters = ["1", "2", "3", "4", "5", "6", "7", "8"];
-    const branches = ["CSE"];
+    const branches = ["CSE", "IT"];
 
     return (
         <div style={bgStyle}>
@@ -201,7 +201,7 @@ function Register() {
                             </>
                         ) : role === 'teacher' ? (
                             <>
-                                {/* Teacher Row 2: Incharge Accordion Desktop */}
+                                {/* Teacher Row 2: Department and Incharge Accordion Desktop */}
                                 <div className="desktop-only" style={{ gridColumn: '1 / -1' }}>
                                     <Accordion
                                         type="single"
@@ -209,41 +209,77 @@ function Register() {
                                         value={openSection}
                                         onValueChange={setOpenSection}
                                         className="w-full"
-                                        style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0" }}
                                     >
-                                        <AccordionItem value="incharge" style={{ borderBottom: "none" }}>
-                                            <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: inchargeClass ? "#000" : "#757575" }}>
-                                                {inchargeClass ? `Class Incharge of: Semester ${inchargeClass}` : "Class Incharge of ? (Select Semester)"}
-                                            </AccordionTrigger>
-                                            <AccordionContent style={{ padding: "0 12px 12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
-                                                {semesters.map((s) => (
-                                                    <div
-                                                        key={s}
-                                                        style={{ padding: "8px", cursor: "pointer", textAlign: "center", background: inchargeClass === s ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
-                                                        onClick={() => {
-                                                            setInchargeClass(s);
-                                                            setOpenSection("");
-                                                        }}
-                                                    >
-                                                        Semester {s}
-                                                    </div>
-                                                ))}
-                                            </AccordionContent>
-                                        </AccordionItem>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                            <div style={{ width: '100%' }}>
+                                                <AccordionItem value="department" style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0", borderBottom: "none" }}>
+                                                    <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: branch ? "#000" : "#757575" }}>
+                                                        {branch ? `Department: ${branch}` : "Select Department"}
+                                                    </AccordionTrigger>
+                                                    <AccordionContent style={{ padding: "0 12px 12px" }}>
+                                                        {branches.map((b) => (
+                                                            <div
+                                                                key={b}
+                                                                style={{ padding: "8px", cursor: "pointer", background: branch === b ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
+                                                                onClick={() => {
+                                                                    setBranch(b);
+                                                                    setOpenSection("");
+                                                                }}
+                                                            >
+                                                                {b}
+                                                            </div>
+                                                        ))}
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            </div>
+                                            <div style={{ width: '100%' }}>
+                                                <AccordionItem value="incharge" style={{ textAlign: "left", background: "#f8fafc", borderRadius: "8px", border: "1px solid #E2E8F0", borderBottom: "none" }}>
+                                                    <AccordionTrigger style={{ padding: "12px", fontSize: "14px", color: inchargeClass ? "#000" : "#757575" }}>
+                                                        {inchargeClass ? `Incharge: Sem ${inchargeClass}` : "Class Incharge of ? (Sem)"}
+                                                    </AccordionTrigger>
+                                                    <AccordionContent style={{ padding: "0 12px 12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
+                                                        {semesters.map((s) => (
+                                                            <div
+                                                                key={s}
+                                                                style={{ padding: "8px", cursor: "pointer", textAlign: "center", background: inchargeClass === s ? "#e2e8f0" : "transparent", borderRadius: "4px" }}
+                                                                onClick={() => {
+                                                                    setInchargeClass(s);
+                                                                    setOpenSection("");
+                                                                }}
+                                                            >
+                                                                Semester {s}
+                                                            </div>
+                                                        ))}
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            </div>
+                                        </div>
                                     </Accordion>
                                 </div>
-                                {/* Teacher Row 2: Incharge Select Mobile */}
+                                {/* Teacher Row 2: Select Mobile */}
                                 <div className="mobile-only" style={{ gridColumn: '1 / -1' }}>
-                                    <select
-                                        style={{ ...inputStyle, marginBottom: "16px", paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: inchargeClass ? "#000" : "#757575" }}
-                                        value={inchargeClass}
-                                        onChange={(e) => setInchargeClass(e.target.value)}
-                                    >
-                                        <option value="" disabled>Class Incharge of ? (Select Semester)</option>
-                                        {semesters.map(s => (
-                                            <option key={s} value={s}>Semester {s}</option>
-                                        ))}
-                                    </select>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                                        <select
+                                            style={{ ...inputStyle, marginBottom: 0, paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: branch ? "#000" : "#757575" }}
+                                            value={branch}
+                                            onChange={(e) => setBranch(e.target.value)}
+                                        >
+                                            <option value="" disabled>Select Department</option>
+                                            {branches.map(b => (
+                                                <option key={b} value={b}>{b}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            style={{ ...inputStyle, marginBottom: "16px", paddingRight: "10px", appearance: "auto", background: "#f8fafc", color: inchargeClass ? "#000" : "#757575" }}
+                                            value={inchargeClass}
+                                            onChange={(e) => setInchargeClass(e.target.value)}
+                                        >
+                                            <option value="" disabled>Class Incharge of ? (Select Semester)</option>
+                                            {semesters.map(s => (
+                                                <option key={s} value={s}>Semester {s}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </>
                         ) : (
