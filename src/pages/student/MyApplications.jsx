@@ -83,10 +83,26 @@ function MyApplications() {
                 boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
               }}>
                 <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: "0 0 4px 0", color: "#0f172a" }}>{leave.eventName}</h4>
-                  <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>
-                    {new Date(leave.eventDate).toLocaleDateString()} • {leave.slots.length} Slots
+                  <h4 style={{ margin: "0 0 4px 0", color: "#0f172a", fontSize: "16px" }}>{leave.eventName}</h4>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "14px", color: "#0D9488", fontWeight: "500" }}>
+                    {new Date(leave.eventDate).toLocaleDateString()}
                   </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "13px", color: "#475569" }}>
+                    <div>
+                      <strong style={{ color: "#334155" }}>Coordinator:</strong> {leave.coordinatorName}
+                    </div>
+                    <div>
+                      <strong style={{ color: "#334155" }}>Department:</strong> {leave.department}
+                    </div>
+                    <div>
+                      <strong style={{ color: "#334155" }}>Slots Requested:</strong> {leave.slots.join(", ")}
+                    </div>
+                    {leave.rejectionReason && (
+                      <div style={{ gridColumn: "1 / -1", color: "#EF4444", marginTop: "4px", background: "#FEF2F2", padding: "6px 10px", borderRadius: "6px", border: "1px solid #FECACA" }}>
+                        <strong>Rejection Reason:</strong> {leave.rejectionReason}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
