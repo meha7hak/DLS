@@ -29,6 +29,14 @@ export const register = async (req, res) => {
             }
         }
 
+        // Check if a faculty already exists for the given department and semester
+        if (role === "faculty" && department && semester) {
+            const facultyExists = await User.findOne({ role: "faculty", department, semester });
+            if (facultyExists) {
+                return res.status(400).json({ message: `A Class Incharge (Faculty) for ${department} - Semester ${semester} already exists.` });
+            }
+        }
+
         const user = await User.create({
             name,
             email,

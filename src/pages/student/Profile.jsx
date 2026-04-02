@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { User, Mail, GraduationCap, Building2, BookOpen, Camera, Key } from "lucide-react";
+import { User, Mail, GraduationCap, Building2, BookOpen, Camera, Key, Eye, EyeOff } from "lucide-react";
 
 function Profile() {
   const [userInfo, setUserInfo] = useState(null);
@@ -15,6 +15,13 @@ function Profile() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMsg, setPasswordMsg] = useState({ type: "", text: "" });
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // Password visibility
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
   useEffect(() => {
     const data = localStorage.getItem("userInfo");
@@ -33,7 +40,7 @@ function Profile() {
     setUploading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/auth/profile-pic", {
+      const res = await fetch(`${API_BASE}/api/auth/profile-pic`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`
@@ -67,7 +74,7 @@ function Profile() {
     setChangingPassword(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/auth/change-password", {
+      const res = await fetch(`${API_BASE}/api/auth/change-password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -187,30 +194,47 @@ function Profile() {
             <form onSubmit={handleChangePassword} className="animate-fade-in" style={formStyle}>
               <h4 style={{ marginBottom: "15px", color: "#1e293b" }}>Update Password</h4>
 
-              <input
-                type="password"
-                placeholder="Old Password"
-                style={inputStyle}
-                required
-                value={oldPassword}
-                onChange={e => setOldPassword(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="New Password"
-                style={inputStyle}
-                required
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Confirm New Password"
-                style={inputStyle}
-                required
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showOld ? "text" : "password"}
+                  placeholder="Old Password"
+                  style={{ ...inputStyle, paddingRight: "40px" }}
+                  required
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowOld(!showOld)} style={eyeBtnStyle}>
+                   {showOld ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showNew ? "text" : "password"}
+                  placeholder="New Password"
+                  style={{ ...inputStyle, paddingRight: "40px" }}
+                  required
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowNew(!showNew)} style={eyeBtnStyle}>
+                   {showNew ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="Confirm New Password"
+                  style={{ ...inputStyle, paddingRight: "40px" }}
+                  required
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowConfirm(!showConfirm)} style={eyeBtnStyle}>
+                   {showConfirm ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
 
               {passwordMsg.text && (
                 <p style={{ ...msgStyle, color: passwordMsg.type === 'error' ? 'red' : 'green' }}>
@@ -371,6 +395,19 @@ const inputStyle = {
   border: "1px solid #E2E8F0",
   boxSizing: "border-box",
   fontSize: "14px"
+};
+
+const eyeBtnStyle = {
+  position: "absolute",
+  right: "10px",
+  top: "50%",
+  transform: "translateY(-50%)",
+  background: "transparent",
+  border: "none",
+  color: "#64748b",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center"
 };
 
 const submitBtnStyle = {

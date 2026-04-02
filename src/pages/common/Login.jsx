@@ -8,6 +8,7 @@ import Particles from "../../components/Particles";
 function Login() {
     const navigate = useNavigate();
     const [loginType, setLoginType] = useState("student"); // 'student' or 'staff'
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
     // Auth States
     const [identifier, setIdentifier] = useState("");
@@ -34,7 +35,7 @@ function Login() {
         }
 
         try {
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ identifier, password, role: loginType })

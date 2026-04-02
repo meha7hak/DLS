@@ -9,6 +9,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
   useEffect(() => {
     const data = localStorage.getItem("userInfo");
     if (data) {
@@ -20,7 +22,7 @@ function Dashboard() {
   const fetchLeaves = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/leave/my-leaves", {
+      const res = await fetch(`${API_BASE}/api/leave/my-leaves`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -31,6 +33,26 @@ function Dashboard() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if(!window.confirm("Are you sure you want to delete this leave application?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/leave/delete/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setLeaves(leaves.filter(l => l._id !== id));
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to delete");
+      }
+    } catch(err) {
+      console.error(err);
+      alert("Error deleting application.");
     }
   };
 
@@ -96,31 +118,45 @@ function Dashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                   <StatusBadge status={leave.status} />
                   
-                  {leave.status === "Rejected" && (
-                     <button
-                        onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}
-                        style={{
-                          background: "#fff",
-                          border: "1px solid #0D9488",
-                          color: "#0D9488",
-                          padding: "6px 12px",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "13px",
-                          fontWeight: "500",
-                          transition: "all 0.2s"
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = "#0D9488";
-                          e.target.style.color = "#fff";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = "#fff";
-                          e.target.style.color = "#0D9488";
-                        }}
-                     >
-                        Edit & Re-submit
-                     </button>
+                  {(leave.status.includes("Pending") || leave.status === "Rejected") && (
+                     <div style={{ display: "flex", gap: "8px" }}>
+                       <button
+                          onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}
+                          style={{
+                            background: "#fff",
+                            border: "1px solid #0D9488",
+                            color: "#0D9488",
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            fontWeight: "500",
+                            transition: "all 0.2s"
+                          }}
+                          onMouseEnter={(e) => { e.target.style.background = "#0D9488"; e.target.style.color = "#fff"; }}
+                          onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#0D9488"; }}
+                       >
+                          Edit
+                       </button>
+                       <button
+                          onClick={() => handleDelete(leave._id)}
+                          style={{
+                            background: "#fff",
+                            border: "1px solid #EF4444",
+                            color: "#EF4444",
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            fontWeight: "500",
+                            transition: "all 0.2s"
+                          }}
+                          onMouseEnter={(e) => { e.target.style.background = "#EF4444"; e.target.style.color = "#fff"; }}
+                          onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#EF4444"; }}
+                       >
+                          Delete
+                       </button>
+                     </div>
                   )}
                 </div>
               </div>
@@ -128,6 +164,41 @@ function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* FLOATING ACTION BUTTON */}
+      <button
+        onClick={() => navigate("/student/apply")}
+        title="Apply Leave"
+        style={{
+          position: "fixed",
+          bottom: "30px",
+          right: "30px",
+          width: "60px",
+          height: "60px",
+          borderRadius: "50%",
+          background: "#0D9488",
+          color: "#fff",
+          fontSize: "28px",
+          lineHeight: "60px",
+          textAlign: "center",
+          border: "none",
+          boxShadow: "0 4px 10px rgba(13, 148, 136, 0.4)",
+          cursor: "pointer",
+          zIndex: 1000,
+          transition: "transform 0.2s, box-shadow 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = "scale(1.1)";
+          e.target.style.boxShadow = "0 6px 14px rgba(13, 148, 136, 0.5)";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = "scale(1)";
+          e.target.style.boxShadow = "0 4px 10px rgba(13, 148, 136, 0.4)";
+        }}
+      >
+        +
+      </button>
+
     </div>
   );
 }

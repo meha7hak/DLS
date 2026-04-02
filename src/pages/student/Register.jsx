@@ -16,6 +16,8 @@ function Register() {
     const [searchParams] = useSearchParams();
     const role = searchParams.get('role') || 'student';
 
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
     // Shared Form States
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -92,7 +94,7 @@ function Register() {
                 semester: role === 'student' ? Number(semester) : (role === 'teacher' ? Number(inchargeClass) : undefined)
             };
 
-            const res = await fetch("/api/auth/register", {
+            const res = await fetch(`${API_BASE}/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)

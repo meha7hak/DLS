@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Stepper from "../../components/Stepper";
 
 function ApplyLeave() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(0);
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,23 @@ function ApplyLeave() {
   const [phoneError, setPhoneError] = useState("");
 
   const [generalError, setGeneralError] = useState("");
+
+  const editLeave = location.state?.editLeave || null;
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
+  useEffect(() => {
+    if (editLeave) {
+      setEventName(editLeave.eventName);
+      setCoordinatorName(editLeave.coordinatorName);
+      setDepartment(editLeave.department);
+      if (editLeave.eventDate) {
+        setEventDate(new Date(editLeave.eventDate).toISOString().split('T')[0]);
+      }
+      setEmail(editLeave.coordinatorEmail);
+      setPhone(editLeave.coordinatorPhone);
+      setSlots(editLeave.slots);
+    }
+  }, [editLeave]);
 
   const toggleSlot = (slot) => {
     setSlots(prev =>
@@ -46,15 +64,26 @@ function ApplyLeave() {
         coordinatorPhone: phone,
         slots
       };
-      
-      const res = await fetch("/api/leave/apply", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
+      let res;
+      if (editLeave) {
+        res = await fetch(`${API_BASE}/api/leave/${editLeave._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch(`${API_BASE}/api/leave/apply`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
       
       if (res.ok) {
         navigate("/student/dashboard");
@@ -71,7 +100,7 @@ function ApplyLeave() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: "20px" }}>Apply Duty Leave</h2>
+      <h2 style={{ marginBottom: "20px" }}>{editLeave ? "Edit Duty Leave" : "Apply Duty Leave"}</h2>
 
       <div style={{
         background: "#fff",

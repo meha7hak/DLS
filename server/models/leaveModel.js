@@ -9,7 +9,11 @@ const leaveSchema = new mongoose.Schema({
     department: { type: String, required: true },
     coordinatorPhone: { type: String, required: true },
     slots: [{ type: Number }],
-    status: { type: String, enum: ['Pending', 'Pending Coordinator', 'Approved', 'Rejected'], default: 'Pending Coordinator' },
+    status: { 
+        type: String, 
+        enum: ['Pending ClassIncharge', 'Pending Coordinator', 'Pending HOD', 'Approved', 'Rejected'], 
+        default: 'Pending ClassIncharge' 
+    },
     rejectionReason: { type: String, default: null }
 }, { timestamps: true });
 
