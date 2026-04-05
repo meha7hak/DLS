@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LayoutDashboard, LogOut, Menu } from "lucide-react";
 import ShapeGrid from "../components/Background";
 
