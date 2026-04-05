@@ -121,14 +121,22 @@ export const approveByClassIncharge = async (req, res) => {
                 <a href="${rejectUrl}" style="background-color:red; color:white; padding:10px; text-decoration:none; margin-left:10px;">Reject</a>
             `;
 
-            await sendEmail({
-                to: leave.coordinatorEmail,
-                subject: `Duty Leave Approval Needed: ${leave.student.name}`,
-                text: `Duty Leave Approval Needed for ${leave.student.name}`,
-                html: emailHtml
-            });
+            try {
+                await sendEmail({
+                    to: leave.coordinatorEmail,
+                    subject: `Duty Leave Approval Needed: ${leave.student.name}`,
+                    text: `Duty Leave Approval Needed for ${leave.student.name}`,
+                    html: emailHtml
+                });
 
-            res.json({ message: "Leave approved by Class Incharge and email sent to coordinator" });
+                res.json({ message: "Leave approved by Class Incharge and email sent to coordinator" });
+            } catch (emailError) {
+                // Should we revert the leave status if email fails?
+                // Probably yes, to avoid it being stuck.
+                leave.status = "Pending ClassIncharge";
+                await leave.save();
+                res.status(500).json({ message: "Leave approved but failed to send email. Please try again.", error: emailError.message });
+            }
         } else {
             res.status(404).json({ message: "Leave not found or invalid status" });
         }
