@@ -34,7 +34,8 @@ export const applyLeave = async (req, res) => {
         const io = req.app.get('io');
         if (io) io.emit("leaveCreated", createdLeave);
 
-        const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/coordinator/dashboard?requestId=${createdLeave._id}`;
+        const baseUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
+        const dashboardUrl = `${baseUrl}/coordinator/dashboard?requestId=${createdLeave._id}`;
         try {
             await sendEmail({
                 to: coordinatorEmail,
