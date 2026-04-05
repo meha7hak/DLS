@@ -20,7 +20,7 @@ export const applyLeave = async (req, res) => {
             eventName,
             eventDate,
             coordinatorName,
-            coordinatorEmail,
+            coordinatorEmail: (coordinatorEmail || "").trim(),
             department,
             coordinatorPhone,
             slots,
@@ -144,7 +144,7 @@ export const getCoordinatorRequests = async (req, res) => {
         const filterStatus = req.query.status || "PENDING_COORDINATOR";
 
         const leaves = await Leave.find({ 
-            coordinatorEmail: req.user.email,
+            coordinatorEmail: { $regex: new RegExp(`^${(req.user.email || "").trim()}$`, "i") },
             status: filterStatus
         })
         .populate('student', 'name rollno semester department')
