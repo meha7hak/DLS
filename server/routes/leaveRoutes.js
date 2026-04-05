@@ -12,7 +12,7 @@ const router = express.Router();
 // Student Routes
 router.post("/apply", protect, applyLeave);
 router.get("/my-leaves", protect, getMyLeaves);
-router.get("/:id", protect, getLeaveById); // added for Timeline UI tracking
+
 router.put("/:id", protect, updateLeave);
 router.delete("/delete/:id", protect, deleteLeave);
 
@@ -32,5 +32,8 @@ router.patch("/:id/ci-reject", protect, authorizeRoles("faculty"), ciReject);
 router.get("/hod", protect, authorizeRoles("hod"), getHodRequests);
 router.patch("/:id/hod-approve", protect, authorizeRoles("hod"), hodApprove);
 router.patch("/:id/hod-reject", protect, authorizeRoles("hod"), hodReject);
+
+// Get by ID should be last so it doesn't mistakenly catch /coordinator or /faculty
+router.get("/:id", protect, getLeaveById); // added for Timeline UI tracking
 
 export default router;
