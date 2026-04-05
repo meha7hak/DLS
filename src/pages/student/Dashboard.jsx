@@ -61,9 +61,9 @@ function Dashboard() {
     }
   };
 
-  const pendingCount = leaves.filter(l => l.status.includes('Pending')).length;
-  const approvedCount = leaves.filter(l => l.status === 'Approved').length;
-  const rejectedCount = leaves.filter(l => l.status === 'Rejected').length;
+  const pendingCount = leaves.filter(l => l.status.includes('PENDING')).length;
+  const approvedCount = leaves.filter(l => l.status === 'FINAL_APPROVED').length;
+  const rejectedCount = leaves.filter(l => l.status.includes('REJECTED')).length;
 
   return (
     <div>
@@ -139,7 +139,7 @@ function Dashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                   <StatusBadge status={leave.status} />
                   
-                  {(leave.status.includes("Pending") || leave.status === "Rejected") && (
+                  {(leave.status.includes("PENDING") || leave.status.includes("REJECTED")) && (
                      <div style={{ display: "flex", gap: "8px" }}>
                        <button
                           onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}

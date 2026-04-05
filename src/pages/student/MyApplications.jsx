@@ -170,7 +170,7 @@ function MyApplications() {
                         Timeline
                     </button>
 
-                    {(leave.status.includes("Pending") || leave.status === "Rejected") && (
+                    {(leave.status.includes("PENDING") || leave.status.includes("REJECTED")) && (
                         <div style={{ display: "flex", gap: "8px" }}>
                         <button
                             onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}

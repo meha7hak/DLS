@@ -1,11 +1,15 @@
 function StatusBadge({ status }) {
   const colors = {
-    "Pending Coordinator": "#F59E0B",
-    "Pending Teacher": "#3B82F6",
-    "Pending HOD": "#8B5CF6",
-    Approved: "#22C55E",
-    Rejected: "#EF4444"
+    PENDING_COORDINATOR: "#F59E0B",
+    PENDING_CI: "#3B82F6",
+    PENDING_HOD: "#8B5CF6",
+    FINAL_APPROVED: "#22C55E",
+    REJECTED_BY_COORD: "#EF4444",
+    REJECTED_BY_CI: "#EF4444",
+    REJECTED_BY_HOD: "#EF4444",
   };
+  
+  const displayStatus = status.replace(/_/g, " ");
 
   return (
     <span style={{
@@ -15,7 +19,7 @@ function StatusBadge({ status }) {
       color: "#fff",
       background: colors[status]
     }}>
-      {status}
+      {displayStatus}
     </span>
   );
 }
