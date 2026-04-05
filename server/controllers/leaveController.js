@@ -1,5 +1,15 @@
 import Leave from "../models/leaveModel.js";
+import LeaveLog from "../models/leaveLogModel.js";
 import { sendEmail } from "../utils/sendEmail.js";
+
+// Helper to log actions
+const logAction = async (leaveId, action, actorId, role, reason = null) => {
+    try {
+        await LeaveLog.create({ leaveId, action, actorId, role, reason });
+    } catch (error) {
+        console.error("Error creating leave log:", error);
+    }
+};
 
 export const applyLeave = async (req, res) => {
     try {
@@ -14,12 +24,33 @@ export const applyLeave = async (req, res) => {
             department,
             coordinatorPhone,
             slots,
-            status: "Pending ClassIncharge"
+            status: "PENDING_COORDINATOR"
         });
 
         const createdLeave = await leave.save();
-        res.status(201).json(createdLeave);
+        await logAction(createdLeave._id, "SUBMITTED", req.user._id, req.user.role);
 
+        // Notify Coordinator
+        const io = req.app.get('io');
+        if (io) io.emit("leaveCreated", createdLeave);
+
+        const dashboardUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:5173"}/coordinator/dashboard?requestId=${createdLeave._id}`;
+        try {
+            await sendEmail({
+                to: coordinatorEmail,
+                subject: `Duty Leave Request Pending: ${req.user.name}`,
+                text: `A new duty leave request has been submitted by ${req.user.name}.`,
+                html: `
+                    <h3>New Duty Leave Request</h3>
+                    <p>Student <b>${req.user.name}</b> has applied for a duty leave for the event: <b>${eventName}</b>.</p>
+                    <a href="${dashboardUrl}" style="background-color:#0D9488; color:white; padding:10px 15px;text-decoration:none; border-radius:5px;">Go To Dashboard</a>
+                `
+            });
+        } catch (e) {
+            console.error("Email send warning: ", e);
+        }
+
+        res.status(201).json(createdLeave);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
@@ -34,12 +65,26 @@ export const getMyLeaves = async (req, res) => {
     }
 };
 
+export const getLeaveById = async (req, res) => {
+    try {
+        const leave = await Leave.findById(req.params.id).populate('student', 'name rollno semester department');
+        if (!leave) return res.status(404).json({ message: "Not found" });
+        
+        // Also fetch the logs to build Timeline UI on frontend
+        const logs = await LeaveLog.find({ leaveId: leave._id }).sort({ createdAt: 1 });
+        
+        res.json({ leave, logs });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
 export const updateLeave = async (req, res) => {
     try {
         const leave = await Leave.findById(req.params.id);
 
         if (leave && leave.student.toString() === req.user._id.toString()) {
-            if (leave.status !== "Rejected" && !leave.status.includes("Pending")) {
+            if (!leave.status.includes("REJECTED") && !leave.status.includes("PENDING")) {
                 return res.status(400).json({ message: "You cannot edit processed leaves." });
             }
 
@@ -52,10 +97,15 @@ export const updateLeave = async (req, res) => {
             leave.department = department || leave.department;
             leave.coordinatorPhone = coordinatorPhone || leave.coordinatorPhone;
             leave.slots = slots || leave.slots;
-            leave.status = 'Pending ClassIncharge'; // Reset status when resubmitting
+            leave.status = 'PENDING_COORDINATOR'; // Reset status when resubmitting
             leave.rejectionReason = null;
 
             const updatedLeave = await leave.save();
+            await logAction(updatedLeave._id, "UPDATED", req.user._id, req.user.role);
+
+            const io = req.app.get('io');
+            if (io) io.emit("leaveUpdated", updatedLeave);
+
             res.json(updatedLeave);
         } else {
             res.status(404).json({ message: "Leave not found or unauthorized" });
@@ -69,10 +119,11 @@ export const deleteLeave = async (req, res) => {
     try {
         const leave = await Leave.findById(req.params.id);
         if (leave && leave.student.toString() === req.user._id.toString()) {
-            if (leave.status === "Approved") {
+            if (leave.status === "FINAL_APPROVED" || leave.status === "APPROVED_BY_HOD") {
                 return res.status(400).json({ message: "Cannot delete approved leaves." });
             }
             await leave.deleteOne();
+            await LeaveLog.deleteMany({ leaveId: leave._id });
             res.json({ message: "Leave deleted successfully." });
         } else {
             res.status(404).json({ message: "Leave not found or unauthorized" });
@@ -82,11 +133,75 @@ export const deleteLeave = async (req, res) => {
     }
 };
 
-// FACULTY (CLASS INCHARGE) ENDPOINTS
+// ---------------------------------------------------------
+// COORDINATOR ENDPOINTS
+// ---------------------------------------------------------
+export const getCoordinatorRequests = async (req, res) => {
+    try {
+        // Find pending leaves mapped to this coordinator's email OR generic status
+        // Use req.query.status logic if provided, but default to pending
+        const filterStatus = req.query.status || "PENDING_COORDINATOR";
+
+        const leaves = await Leave.find({ 
+            coordinatorEmail: req.user.email,
+            status: filterStatus
+        })
+        .populate('student', 'name rollno semester department')
+        .sort({ createdAt: -1 });
+
+        res.json(leaves);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const coordApprove = async (req, res) => {
+    try {
+        const leave = await Leave.findById(req.params.id);
+        if (!leave) return res.status(404).json({ message: "Not found" });
+        if (leave.coordinatorEmail !== req.user.email) return res.status(403).json({ message: "Forbidden" });
+
+        leave.status = "PENDING_CI";
+        await leave.save();
+        await logAction(leave._id, "APPROVED_BY_COORD", req.user._id, "coordinator");
+
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
+
+        res.json(leave);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const coordReject = async (req, res) => {
+    try {
+        const leave = await Leave.findById(req.params.id);
+        if (!leave) return res.status(404).json({ message: "Not found" });
+        if (leave.coordinatorEmail !== req.user.email) return res.status(403).json({ message: "Forbidden" });
+
+        const reason = req.body.reason || "Rejected by Coordinator";
+        leave.status = "REJECTED_BY_COORD";
+        leave.rejectionReason = reason;
+        await leave.save();
+        await logAction(leave._id, "REJECTED_BY_COORD", req.user._id, "coordinator", reason);
+
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
+
+        res.json(leave);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// ---------------------------------------------------------
+// CLASS INCHARGE ENDPOINTS
+// ---------------------------------------------------------
 export const getClassInchargeRequests = async (req, res) => {
     try {
-        // Faculty handles only their semester and department
-        const leaves = await Leave.find({ status: "Pending ClassIncharge" })
+        const filterStatus = req.query.status || "PENDING_CI";
+        const leaves = await Leave.find({ status: filterStatus })
             .populate({
                 path: 'student',
                 match: { semester: req.user.semester, department: req.user.department },
@@ -94,7 +209,6 @@ export const getClassInchargeRequests = async (req, res) => {
             })
             .sort({ createdAt: -1 });
 
-        // Filter out null populations (students not in faculty's sem/dept)
         const filteredLeaves = leaves.filter(l => l.student != null);
         res.json(filteredLeaves);
     } catch (error) {
@@ -102,137 +216,128 @@ export const getClassInchargeRequests = async (req, res) => {
     }
 };
 
-export const approveByClassIncharge = async (req, res) => {
+export const ciApprove = async (req, res) => {
     try {
-        const leave = await Leave.findById(req.params.id).populate('student', 'name rollno');
-        if (leave && leave.status === "Pending ClassIncharge") {
-            leave.status = "Pending Coordinator";
-            await leave.save();
+        const leave = await Leave.findById(req.params.id);
+        if (!leave) return res.status(404).json({ message: "Not found" });
+        
+        leave.status = "PENDING_HOD";
+        await leave.save();
+        await logAction(leave._id, "APPROVED_BY_CI", req.user._id, "faculty");
 
-            // Send Email to Coordinator
-            const approveUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:7800"}/api/leave/coordinator-approve/${leave._id}`;
-            const rejectUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:7800"}/api/leave/coordinator-reject/${leave._id}`;
-            const emailHtml = `
-                <h3>Duty Leave Request</h3>
-                <p>Hello <b>${leave.coordinatorName}</b>,</p>
-                <p>Student <b>${leave.student.name}</b> (${leave.student.rollno}) has applied for a duty leave for the event: <b>${leave.eventName}</b> on <b>${new Date(leave.eventDate).toLocaleDateString()}</b>.</p>
-                <p>This request has been approved by their Class Incharge and now requires your approval as the event coordinator.</p>
-                <a href="${approveUrl}" style="background-color:green; color:white; padding:10px;text-decoration:none;">Approve</a>
-                <a href="${rejectUrl}" style="background-color:red; color:white; padding:10px; text-decoration:none; margin-left:10px;">Reject</a>
-            `;
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
 
-            try {
-                await sendEmail({
-                    to: leave.coordinatorEmail,
-                    subject: `Duty Leave Approval Needed: ${leave.student.name}`,
-                    text: `Duty Leave Approval Needed for ${leave.student.name}`,
-                    html: emailHtml
-                });
-
-                res.json({ message: "Leave approved by Class Incharge and email sent to coordinator" });
-            } catch (emailError) {
-                // Should we revert the leave status if email fails?
-                // Probably yes, to avoid it being stuck.
-                leave.status = "Pending ClassIncharge";
-                await leave.save();
-                res.status(500).json({ message: "Leave approved but failed to send email. Please try again.", error: emailError.message });
-            }
-        } else {
-            res.status(404).json({ message: "Leave not found or invalid status" });
-        }
+        res.json(leave);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
-export const rejectByClassIncharge = async (req, res) => {
+export const ciModify = async (req, res) => {
     try {
         const leave = await Leave.findById(req.params.id);
-        if (leave && leave.status === "Pending ClassIncharge") {
-            leave.status = "Rejected";
-            leave.rejectionReason = req.body.reason || "Rejected by Class Incharge";
-            await leave.save();
-            res.json({ message: "Leave rejected by Class Incharge" });
-        } else {
-            res.status(404).json({ message: "Leave not found or invalid status" });
-        }
+        if (!leave) return res.status(404).json({ message: "Not found" });
+        
+        const { modifiedSlots } = req.body;
+        if (!modifiedSlots) return res.status(400).json({ message: "Missing slots" });
+
+        const originalSlots = leave.slots;
+        leave.slots = modifiedSlots;
+        leave.status = "PENDING_HOD";
+        await leave.save();
+
+        const logMsg = "Slots modified directly";
+        await logAction(leave._id, "MODIFIED_BY_CI", req.user._id, "faculty", logMsg);
+
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
+
+        res.json(leave);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const ciReject = async (req, res) => {
+    try {
+        const leave = await Leave.findById(req.params.id);
+        if (!leave) return res.status(404).json({ message: "Not found" });
+
+        const reason = req.body.reason || "Rejected by Class Incharge";
+        leave.status = "REJECTED_BY_CI";
+        leave.rejectionReason = reason;
+        await leave.save();
+        
+        await logAction(leave._id, "REJECTED_BY_CI", req.user._id, "faculty", reason);
+
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
+
+        res.json(leave);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
 
-// COORDINATOR ENDPOINTS
-export const approveByCoordinator = async (req, res) => {
-    try {
-        const leave = await Leave.findById(req.params.id);
-        if (leave && leave.status === "Pending Coordinator") {
-            leave.status = "Pending HOD";
-            await leave.save();
-            res.send("<h3>Leave Approved Successfully. The request has been forwarded to the HOD.</h3>");
-        } else {
-            res.status(400).send("<h3>Invalid Request or already processed.</h3>");
-        }
-    } catch (error) {
-        res.status(500).send("<h3>Server Error</h3>");
-    }
-};
-
-export const rejectByCoordinator = async (req, res) => {
-    try {
-        const leave = await Leave.findById(req.params.id);
-        if (leave && leave.status === "Pending Coordinator") {
-            leave.status = "Rejected";
-            leave.rejectionReason = "Rejected by Event Coordinator via Email";
-            await leave.save();
-            res.send("<h3>Leave Rejected Successfully.</h3>");
-        } else {
-            res.status(400).send("<h3>Invalid Request or already processed.</h3>");
-        }
-    } catch (error) {
-        res.status(500).send("<h3>Server Error</h3>");
-    }
-};
-
-
+// ---------------------------------------------------------
 // HOD ENDPOINTS
+// ---------------------------------------------------------
 export const getHodRequests = async (req, res) => {
     try {
-        const leaves = await Leave.find({ status: "Pending HOD" })
-            .populate('student', 'name rollno semester department')
+        const filterStatus = req.query.status || "PENDING_HOD";
+        // HOD sees all from their department
+        const leaves = await Leave.find({ status: filterStatus })
+            .populate({
+                path: 'student',
+                match: { department: req.user.department },
+                select: 'name rollno semester department'
+            })
             .sort({ createdAt: -1 });
-        res.json(leaves);
+
+        const filteredLeaves = leaves.filter(l => l.student != null);
+        res.json(filteredLeaves);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
-export const approveByHod = async (req, res) => {
+export const hodApprove = async (req, res) => {
     try {
         const leave = await Leave.findById(req.params.id);
-        if (leave && leave.status === "Pending HOD") {
-            leave.status = "Approved";
-            await leave.save();
-            res.json({ message: "Leave fully approved by HOD." });
-        } else {
-            res.status(404).json({ message: "Leave not found or invalid status" });
-        }
+        if (!leave) return res.status(404).json({ message: "Not found" });
+
+        leave.status = "FINAL_APPROVED";
+        await leave.save();
+        
+        await logAction(leave._id, "FINAL_APPROVED", req.user._id, "hod");
+
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
+
+        res.json(leave);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
-export const rejectByHod = async (req, res) => {
+export const hodReject = async (req, res) => {
     try {
         const leave = await Leave.findById(req.params.id);
-        if (leave && leave.status === "Pending HOD") {
-            leave.status = "Rejected";
-            leave.rejectionReason = req.body.reason || "Rejected by HOD";
-            await leave.save();
-            res.json({ message: "Leave rejected by HOD" });
-        } else {
-            res.status(404).json({ message: "Leave not found or invalid status" });
-        }
+        if (!leave) return res.status(404).json({ message: "Not found" });
+
+        const reason = req.body.reason || "Rejected by HOD";
+        leave.status = "REJECTED_BY_HOD";
+        leave.rejectionReason = reason;
+        await leave.save();
+
+        await logAction(leave._id, "REJECTED_BY_HOD", req.user._id, "hod", reason);
+
+        const io = req.app.get('io');
+        if (io) io.emit("leaveUpdated", leave);
+
+        res.json(leave);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

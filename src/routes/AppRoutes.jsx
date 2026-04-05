@@ -14,6 +14,8 @@ import FacultyProfile from "../pages/faculty/Profile";
 import HodDashboard from "../pages/hod/Dashboard";
 import HodProfile from "../pages/hod/Profile";
 import HodRegister from "../pages/hod/Register";
+import CoordinatorLayout from "../layouts/CoordinatorLayout";
+import CoordinatorDashboard from "../pages/coordinator/Dashboard";
 
 function AppRoutes() {
   return (
@@ -24,6 +26,11 @@ function AppRoutes() {
         <Route path="/role-select" element={<RoleSelect />} />
         <Route path="/register" element={<Register />} />
         <Route path="/hod/register" element={<HodRegister />} />
+
+        {/* COORDINATOR ROUTES */}
+        <Route path="/coordinator" element={<CoordinatorLayout />}>
+          <Route path="dashboard" element={<CoordinatorDashboard />} />
+        </Route>
 
         {/* STUDENT ROUTES */}
         <Route path="/student" element={<StudentLayout />}>

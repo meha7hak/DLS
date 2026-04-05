@@ -3,7 +3,7 @@ import StatusBadge from "../../components/StatusBadge";
 import { CheckCircle, XCircle } from "lucide-react";
 import { io } from "socket.io-client";
 
-function FacultyDashboard() {
+function CoordinatorDashboard() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
@@ -21,7 +21,7 @@ function FacultyDashboard() {
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/leave/faculty?status=PENDING_CI`, {
+      const res = await fetch(`${API_BASE}/api/leave/coordinator?status=PENDING_COORDINATOR`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -36,21 +36,28 @@ function FacultyDashboard() {
   };
 
   const handleAction = async (id, action) => {
-    if (!window.confirm(`Are you sure you want to ${action} this request?`)) return;
-    
+    let reason = "";
+    if (action === "reject") {
+        reason = window.prompt("Please provide a reason for rejecting:");
+        if (reason === null) return; // user cancelled prompt
+    } else {
+        if (!window.confirm(`Are you sure you want to approve this request?`)) return;
+    }
+
     setActionLoading(id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/leave/${id}/ci-${action}`, {
+      const url = `${API_BASE}/api/leave/${id}/coord-${action}`;
+      const res = await fetch(url, {
         method: "PATCH",
         headers: { 
             "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json" 
-        }
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ reason })
       });
       
       if (res.ok) {
-        // Refresh requests
         fetchRequests();
       } else {
         const data = await res.json();
@@ -66,9 +73,9 @@ function FacultyDashboard() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2 style={{ marginBottom: "20px", color: "#1e293b" }}>Faculty Dashboard</h2>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b" }}>Coordinator Dashboard</h2>
       <p style={{ color: "#64748b", marginBottom: "30px" }}>
-        Review and manage duty leave requests for your assigned class.
+        Review and manage duty leave requests assigned to you as event coordinator.
       </p>
 
       <div style={{
@@ -83,7 +90,7 @@ function FacultyDashboard() {
         {loading ? (
           <p>Loading requests...</p>
         ) : requests.length === 0 ? (
-          <p style={{ color: "#64748b", textAlign: "center", padding: "20px" }}>No pending requests found for your class.</p>
+          <p style={{ color: "#64748b", textAlign: "center", padding: "20px" }}>No pending requests found for you.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {requests.map((request) => (
@@ -110,16 +117,15 @@ function FacultyDashboard() {
                     <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{new Date(request.eventDate).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px" }}>Coordinator</h4>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{request.coordinatorName}</p>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{request.slots.length} Slots</p>
+                    <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px" }}>Slots Requested</h4>
+                    <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{request.slots.join(", ")}</p>
                   </div>
                 </div>
                 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "15px", minWidth: "150px" }}>
                   <StatusBadge status={request.status} />
                   
-                  {request.status === "PENDING_CI" && (
+                  {request.status === "PENDING_COORDINATOR" && (
                      <div style={{ display: "flex", gap: "10px" }}>
                        <button
                           onClick={() => handleAction(request._id, "approve")}
@@ -175,4 +181,4 @@ function FacultyDashboard() {
   );
 }
 
-export default FacultyDashboard;
+export default CoordinatorDashboard;

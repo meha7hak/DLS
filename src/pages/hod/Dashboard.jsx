@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import StatusBadge from "../../components/StatusBadge";
 import { CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { io } from "socket.io-client";
 
 function HodDashboard() {
   const [requests, setRequests] = useState([]);
@@ -12,12 +13,16 @@ function HodDashboard() {
 
   useEffect(() => {
     fetchRequests();
+    const newSocket = io(API_BASE);
+    newSocket.on("leaveCreated", () => fetchRequests());
+    newSocket.on("leaveUpdated", () => fetchRequests());
+    return () => newSocket.disconnect();
   }, []);
 
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/leave/hod-requests`, {
+      const res = await fetch(`${API_BASE}/api/leave/hod?status=PENDING_HOD`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -43,9 +48,13 @@ function HodDashboard() {
     setActionLoading(id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/leave/hod-${action}/${id}`, {
-        method: "PUT",
-        headers: { "Authorization": `Bearer ${token}` }
+      const res = await fetch(`${API_BASE}/api/leave/${id}/hod-${action}`, {
+        method: "PATCH",
+        headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
       });
       
       if (res.ok) {
@@ -161,7 +170,7 @@ function HodDashboard() {
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "15px", minWidth: "150px" }}>
                           <StatusBadge status={request.status} />
                           
-                          {request.status === "Pending HOD" && (
+                          {request.status === "PENDING_HOD" && (
                              <div style={{ display: "flex", gap: "10px" }}>
                                <button
                                   onClick={(e) => { e.stopPropagation(); handleAction(request._id, "approve"); }}

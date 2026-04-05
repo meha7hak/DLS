@@ -11,8 +11,12 @@ const leaveSchema = new mongoose.Schema({
     slots: [{ type: Number }],
     status: { 
         type: String, 
-        enum: ['Pending ClassIncharge', 'Pending Coordinator', 'Pending HOD', 'Approved', 'Rejected'], 
-        default: 'Pending ClassIncharge' 
+        enum: [
+            'PENDING_COORDINATOR', 'APPROVED_BY_COORD', 'REJECTED_BY_COORD', 
+            'PENDING_CI', 'APPROVED_BY_CI', 'MODIFIED_BY_CI', 'REJECTED_BY_CI', 
+            'PENDING_HOD', 'FINAL_APPROVED', 'REJECTED_BY_HOD'
+        ], 
+        default: 'PENDING_COORDINATOR' 
     },
     rejectionReason: { type: String, default: null }
 }, { timestamps: true });

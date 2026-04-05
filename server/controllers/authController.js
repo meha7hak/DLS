@@ -84,7 +84,7 @@ export const login = async (req, res) => {
         if (user && (await user.matchPassword(password))) {
             const hasValidRole = 
                 user.role === role || 
-                (role === "staff" && (user.role === "faculty" || user.role === "hod"));
+                (role === "staff" && (user.role === "faculty" || user.role === "hod" || user.role === "coordinator"));
 
             if (!hasValidRole) {
                 return res.status(401).json({ message: "Role mismatch." });

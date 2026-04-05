@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../../components/StatCard";
 import StatusBadge from "../../components/StatusBadge";
+import { io } from "socket.io-client";
 
 function Dashboard() {
   const [userInfo, setUserInfo] = useState(null);
@@ -17,6 +18,10 @@ function Dashboard() {
       setUserInfo(JSON.parse(data));
     }
     fetchLeaves();
+    const newSocket = io(API_BASE);
+    newSocket.on("leaveCreated", () => fetchLeaves());
+    newSocket.on("leaveUpdated", () => fetchLeaves());
+    return () => newSocket.disconnect();
   }, []);
 
   const fetchLeaves = async () => {

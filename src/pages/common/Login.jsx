@@ -51,6 +51,8 @@ function Login() {
                     navigate("/faculty/dashboard");
                 } else if (data.role === 'hod') {
                     navigate("/hod/dashboard");
+                } else if (data.role === 'coordinator') {
+                    navigate("/coordinator/dashboard");
                 } else {
                     navigate("/student/dashboard");
                 }
@@ -100,7 +102,7 @@ function Login() {
                         style={loginType === 'staff' ? activeToggleStyle : inactiveToggleStyle}
                         onClick={() => { setLoginType('staff'); setIdentifier(""); }}
                     >
-                        Teacher / HOD
+                        Teacher / Coord / HOD
                     </button>
                 </div>
 

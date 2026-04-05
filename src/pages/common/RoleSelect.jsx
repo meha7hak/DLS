@@ -9,6 +9,7 @@ function RoleSelect() {
     const roles = [
         { name: "Student", path: "/register?role=student" },
         { name: "Teacher", path: "/register?role=teacher" },
+        { name: "Coordinator", path: "/register?role=coordinator" },
         { name: "HOD", path: "/hod/register" }
     ];
 

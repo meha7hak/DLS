@@ -1,10 +1,10 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 import { 
-    applyLeave, getMyLeaves, updateLeave, deleteLeave, 
-    getClassInchargeRequests, approveByClassIncharge, rejectByClassIncharge,
-    approveByCoordinator, rejectByCoordinator,
-    getHodRequests, approveByHod, rejectByHod
+    applyLeave, getMyLeaves, getLeaveById, updateLeave, deleteLeave, 
+    getCoordinatorRequests, coordApprove, coordReject,
+    getClassInchargeRequests, ciApprove, ciModify, ciReject,
+    getHodRequests, hodApprove, hodReject
 } from "../controllers/leaveController.js";
 
 const router = express.Router();
@@ -12,21 +12,25 @@ const router = express.Router();
 // Student Routes
 router.post("/apply", protect, applyLeave);
 router.get("/my-leaves", protect, getMyLeaves);
+router.get("/:id", protect, getLeaveById); // added for Timeline UI tracking
 router.put("/:id", protect, updateLeave);
 router.delete("/delete/:id", protect, deleteLeave);
 
-// Faculty (Class Incharge) Routes
-router.get("/faculty-requests", protect, getClassInchargeRequests);
-router.put("/faculty-approve/:id", protect, approveByClassIncharge);
-router.put("/faculty-reject/:id", protect, rejectByClassIncharge);
+// Coordinator Routes
+// Only users registered with role 'coordinator' can access these
+router.get("/coordinator", protect, authorizeRoles("coordinator"), getCoordinatorRequests);
+router.patch("/:id/coord-approve", protect, authorizeRoles("coordinator"), coordApprove);
+router.patch("/:id/coord-reject", protect, authorizeRoles("coordinator"), coordReject);
 
-// Coordinator Routes (Public/Token-based via Email, keeping public for simplicity as requested since it's an email link without login)
-router.get("/coordinator-approve/:id", approveByCoordinator);
-router.get("/coordinator-reject/:id", rejectByCoordinator);
+// Class Incharge (Faculty) Routes
+router.get("/faculty", protect, authorizeRoles("faculty"), getClassInchargeRequests);
+router.patch("/:id/ci-approve", protect, authorizeRoles("faculty"), ciApprove);
+router.patch("/:id/ci-modify", protect, authorizeRoles("faculty"), ciModify);
+router.patch("/:id/ci-reject", protect, authorizeRoles("faculty"), ciReject);
 
 // HOD Routes
-router.get("/hod-requests", protect, getHodRequests);
-router.put("/hod-approve/:id", protect, approveByHod);
-router.put("/hod-reject/:id", protect, rejectByHod);
+router.get("/hod", protect, authorizeRoles("hod"), getHodRequests);
+router.patch("/:id/hod-approve", protect, authorizeRoles("hod"), hodApprove);
+router.patch("/:id/hod-reject", protect, authorizeRoles("hod"), hodReject);
 
 export default router;

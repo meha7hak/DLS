@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../../components/StatusBadge";
+import { Clock, CheckCircle, XCircle, X } from "lucide-react";
+import { io } from "socket.io-client";
 
 function MyApplications() {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLeave, setSelectedLeave] = useState(null);
+  const [timelineData, setTimelineData] = useState([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
   const navigate = useNavigate();
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
   useEffect(() => {
     fetchLeaves();
+    const newSocket = io(API_BASE);
+    newSocket.on("leaveCreated", () => fetchLeaves());
+    newSocket.on("leaveUpdated", () => fetchLeaves());
+    return () => newSocket.disconnect();
   }, []);
 
   const fetchLeaves = async () => {
@@ -48,6 +57,37 @@ function MyApplications() {
       console.error(err);
       alert("Error deleting application.");
     }
+  };
+
+  const openTimeline = async (leave) => {
+    setSelectedLeave(leave);
+    setTimelineLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/leave/${leave._id}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTimelineData(data.logs || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
+  const closeTimeline = () => {
+    setSelectedLeave(null);
+    setTimelineData([]);
+  };
+
+  const getTimelineIcon = (action) => {
+    if (action.includes("REJECTED")) return <XCircle size={20} color="#EF4444" />;
+    if (action.includes("APPROVED")) return <CheckCircle size={20} color="#22C55E" />;
+    if (action === "SUBMITTED") return <CheckCircle size={20} color="#3B82F6" />;
+    return <Clock size={20} color="#F59E0B" />;
   };
 
   return (
@@ -108,52 +148,167 @@ function MyApplications() {
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                   <StatusBadge status={leave.status} />
                   
-                  {(leave.status.includes("Pending") || leave.status === "Rejected") && (
-                     <div style={{ display: "flex", gap: "8px" }}>
-                       <button
-                          onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}
-                          style={{
-                            background: "#fff",
-                            border: "1px solid #0D9488",
-                            color: "#0D9488",
-                            padding: "6px 12px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            transition: "all 0.2s"
-                          }}
-                          onMouseEnter={(e) => { e.target.style.background = "#0D9488"; e.target.style.color = "#fff"; }}
-                          onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#0D9488"; }}
-                       >
-                          Edit
-                       </button>
-                       <button
-                          onClick={() => handleDelete(leave._id)}
-                          style={{
-                            background: "#fff",
-                            border: "1px solid #EF4444",
-                            color: "#EF4444",
-                            padding: "6px 12px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            transition: "all 0.2s"
-                          }}
-                          onMouseEnter={(e) => { e.target.style.background = "#EF4444"; e.target.style.color = "#fff"; }}
-                          onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#EF4444"; }}
-                       >
-                          Delete
-                       </button>
-                     </div>
-                  )}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <button
+                        onClick={() => openTimeline(leave)}
+                        style={{
+                          background: "#F8FAFC",
+                          border: "1px solid #CBD5E1",
+                          color: "#334155",
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          transition: "all 0.2s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "5px"
+                        }}
+                    >
+                        Timeline
+                    </button>
+
+                    {(leave.status.includes("Pending") || leave.status === "Rejected") && (
+                        <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                            onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}
+                            style={{
+                                background: "#fff",
+                                border: "1px solid #0D9488",
+                                color: "#0D9488",
+                                padding: "6px 12px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                transition: "all 0.2s"
+                            }}
+                            onMouseEnter={(e) => { e.target.style.background = "#0D9488"; e.target.style.color = "#fff"; }}
+                            onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#0D9488"; }}
+                        >
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => handleDelete(leave._id)}
+                            style={{
+                                background: "#fff",
+                                border: "1px solid #EF4444",
+                                color: "#EF4444",
+                                padding: "6px 12px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                transition: "all 0.2s"
+                            }}
+                            onMouseEnter={(e) => { e.target.style.background = "#EF4444"; e.target.style.color = "#fff"; }}
+                            onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#EF4444"; }}
+                        >
+                            Delete
+                        </button>
+                        </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* TIMELINE MODAL */}
+      {selectedLeave && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            width: "90%",
+            maxWidth: "600px",
+            maxHeight: "80vh",
+            overflowY: "auto",
+            position: "relative"
+          }}>
+            <button 
+              onClick={closeTimeline}
+              style={{
+                position: "absolute",
+                top: "20px",
+                right: "20px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "#64748b"
+              }}
+            >
+              <X size={24} />
+            </button>
+            <h3 style={{ marginBottom: "20px", color: "#1e293b" }}>Approval Timeline</h3>
+            <p style={{ color: "#64748b", marginBottom: "30px", fontSize: "15px" }}>
+              Tracking progress for <strong>{selectedLeave.eventName}</strong>
+            </p>
+
+            {timelineLoading ? (
+              <p>Loading timeline...</p>
+            ) : timelineData.length === 0 ? (
+              <p>No timeline data available.</p>
+            ) : (
+              <div style={{ position: "relative", paddingLeft: "10px" }}>
+                {/* Vertical Line */}
+                <div style={{
+                  position: "absolute",
+                  left: "20px",
+                  top: "20px",
+                  bottom: "20px",
+                  width: "2px",
+                  background: "#E2E8F0",
+                  zIndex: 0
+                }} />
+
+                {timelineData.map((log, idx) => (
+                  <div key={log._id} style={{ display: "flex", gap: "15px", marginBottom: "24px", position: "relative", zIndex: 1 }}>
+                    <div style={{ 
+                      background: "#fff", 
+                      borderRadius: "50%", 
+                      width: "30px", 
+                      height: "30px", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center",
+                      border: "2px solid #E2E8F0"
+                    }}>
+                      {getTimelineIcon(log.action)}
+                    </div>
+                    <div>
+                      <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px", textTransform: "capitalize" }}>
+                        {log.action.replace(/_/g, " ")}
+                      </h4>
+                      <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                        by {log.role} • {new Date(log.createdAt).toLocaleString()}
+                      </p>
+                      {log.reason && (
+                        <p style={{ margin: "6px 0 0 0", fontSize: "14px", color: "#EF4444", background: "#FEF2F2", padding: "6px 10px", borderRadius: "6px" }}>
+                          {log.reason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

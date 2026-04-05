@@ -67,7 +67,7 @@ function Register() {
             return;
         }
 
-        if (role === 'hod' && !branch) {
+        if ((role === 'hod' || role === 'coordinator') && !branch) {
             setErrorMsg("Please select your department.");
             return;
         }
