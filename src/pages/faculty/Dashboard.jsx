@@ -9,7 +9,7 @@ function FacultyDashboard() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
-  
+
   const [expanded, setExpanded] = useState(false);
   const [selectedCoordinator, setSelectedCoordinator] = useState(null);
 
@@ -48,26 +48,26 @@ function FacultyDashboard() {
     } else {
       if (!window.confirm(`Are you sure you want to approve this request?`)) return;
     }
-    
+
     setActionLoading(id);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/api/leave/${id}/ci-${action}`, {
         method: "PATCH",
-        headers: { 
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json" 
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ reason })
       });
-      
+
       if (res.ok) {
         fetchRequests();
       } else {
         const data = await res.json();
         alert(data.message || `Failed to ${action} request`);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       alert(`Error trying to ${action} request`);
     } finally {
@@ -118,14 +118,14 @@ function FacultyDashboard() {
       <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>{title}</h2>
 
       <div style={{
-        background: "#BE123C",
+        background: "#d15c78",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
         maxWidth: "1000px",
         margin: "0 auto"
       }}>
-        
+
         {loading ? (
           <p style={{ color: "#fff" }}>Loading requests...</p>
         ) : filteredRequests.length === 0 ? (
@@ -160,7 +160,7 @@ function FacultyDashboard() {
                     <h4 style={{ margin: "0 0 4px 0", color: "#FECDD3", fontSize: "15px" }}>Coordinator</h4>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                       <p style={{ margin: 0, fontSize: "14px", color: "#FFE4E6" }}>{request.coordinatorName}</p>
-                      <button 
+                      <button
                         onClick={() => fetchCoordinatorDetails(request)}
                         style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: 0, display: "flex" }}
                         title="View Coordinator Details"
@@ -171,10 +171,10 @@ function FacultyDashboard() {
                     <p style={{ margin: 0, fontSize: "14px", color: "#FFE4E6" }}>{request.slots.length} Slots</p>
                   </div>
                 </div>
-                
+
                 <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile() ? "flex-start" : "flex-end", gap: "15px", minWidth: "150px" }}>
                   <StatusBadge status={request.status} />
-                  
+
                   {request.status.includes("REJECTED") && request.rejectionReason && (
                     <div style={{ background: "rgba(255,0,0,0.2)", padding: "8px", borderRadius: "6px", fontSize: "13px", marginTop: "5px" }}>
                       <strong>Reason:</strong> {request.rejectionReason}
@@ -182,55 +182,55 @@ function FacultyDashboard() {
                   )}
 
                   {request.status === "PENDING_CI" && (
-                     <div style={{ display: "flex", gap: "10px" }}>
-                       <button
-                          onClick={() => handleAction(request._id, "approve")}
-                          disabled={actionLoading === request._id}
-                          style={{
-                             background: "#10B981",
-                             border: "none",
-                             color: "#fff",
-                             padding: "8px 12px",
-                             borderRadius: "6px",
-                             cursor: actionLoading === request._id ? "not-allowed" : "pointer",
-                             fontSize: "13px",
-                             fontWeight: "500",
-                             display: "flex",
-                             alignItems: "center",
-                             gap: "5px"
-                          }}
-                       >
-                          <CheckCircle size={16} />
-                          Approve
-                       </button>
-                       <button
-                          onClick={() => handleAction(request._id, "reject")}
-                          disabled={actionLoading === request._id}
-                          style={{
-                             background: "#EF4444",
-                             border: "none",
-                             color: "#fff",
-                             padding: "8px 12px",
-                             borderRadius: "6px",
-                             cursor: actionLoading === request._id ? "not-allowed" : "pointer",
-                             fontSize: "13px",
-                             fontWeight: "500",
-                             display: "flex",
-                             alignItems: "center",
-                             gap: "5px"
-                          }}
-                       >
-                          <XCircle size={16} />
-                          Reject
-                       </button>
-                     </div>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <button
+                        onClick={() => handleAction(request._id, "approve")}
+                        disabled={actionLoading === request._id}
+                        style={{
+                          background: "#10B981",
+                          border: "none",
+                          color: "#fff",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          cursor: actionLoading === request._id ? "not-allowed" : "pointer",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px"
+                        }}
+                      >
+                        <CheckCircle size={16} />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleAction(request._id, "reject")}
+                        disabled={actionLoading === request._id}
+                        style={{
+                          background: "#EF4444",
+                          border: "none",
+                          color: "#fff",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          cursor: actionLoading === request._id ? "not-allowed" : "pointer",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px"
+                        }}
+                      >
+                        <XCircle size={16} />
+                        Reject
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
             ))}
-            
+
             {filteredRequests.length > 4 && (
-              <button 
+              <button
                 onClick={() => setExpanded(!expanded)}
                 style={{
                   background: "rgba(255,255,255,0.1)",
@@ -263,7 +263,7 @@ function FacultyDashboard() {
             background: "#fff", borderRadius: "12px", width: "100%", maxWidth: "400px",
             overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)"
           }}>
-            <div style={{ background: "#BE123C", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ background: "#d15c78", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, color: "#fff" }}>Coordinator Details</h3>
               <button onClick={() => setSelectedCoordinator(null)} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}>
                 <X size={20} />

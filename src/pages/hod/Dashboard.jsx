@@ -31,7 +31,7 @@ function HodDashboard() {
       if (res.ok) {
         const data = await res.json();
         setRequests(data);
-        
+
         // Expand all initially
         const initialGroups = {};
         const groups = groupByClass(data);
@@ -53,26 +53,26 @@ function HodDashboard() {
     } else {
       if (!window.confirm(`Are you sure you want to approve this request?`)) return;
     }
-    
+
     setActionLoading(id);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/api/leave/${id}/hod-${action}`, {
         method: "PATCH",
-        headers: { 
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ reason })
       });
-      
+
       if (res.ok) {
         fetchRequests();
       } else {
         const data = await res.json();
         alert(data.message || `Failed to ${action} request`);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       alert(`Error trying to ${action} request`);
     } finally {
@@ -106,7 +106,7 @@ function HodDashboard() {
       const dept = req.student?.department || "Unknown Dept";
       const sem = req.student?.semester || "Unknown Sem";
       const key = `${dept} - Sem ${sem}`;
-      
+
       if (!acc[key]) acc[key] = [];
       acc[key].push(req);
       return acc;
@@ -141,7 +141,7 @@ function HodDashboard() {
       <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>HOD Dashboard</h2>
 
       <div style={{
-        background: "#6D28D9",
+        background: "#a48cc9",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -149,7 +149,7 @@ function HodDashboard() {
         margin: "0 auto"
       }}>
         <h3 style={{ marginBottom: "20px", color: "#fff" }}>{title}</h3>
-        
+
         {loading ? (
           <p style={{ color: "#fff" }}>Loading requests...</p>
         ) : Object.keys(groupedRequests).length === 0 ? (
@@ -158,7 +158,7 @@ function HodDashboard() {
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {Object.keys(groupedRequests).map((groupKey) => (
               <div key={groupKey} style={{ border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", overflow: "hidden" }}>
-                <div 
+                <div
                   onClick={() => toggleGroup(groupKey)}
                   style={{
                     display: "flex",
@@ -177,7 +177,7 @@ function HodDashboard() {
                 </div>
 
                 {expandedGroups[groupKey] && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "15px", background: "#6D28D9" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "15px", background: "#a48cc9" }}>
                     {groupedRequests[groupKey].map((request) => (
                       <div key={request._id} style={{
                         display: "flex",
@@ -205,7 +205,7 @@ function HodDashboard() {
                             <h4 style={{ margin: "0 0 4px 0", color: "#C4B5FD", fontSize: "15px" }}>Coordinator</h4>
                             <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                               <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.coordinatorName}</p>
-                              <button 
+                              <button
                                 onClick={(e) => { e.stopPropagation(); fetchCoordinatorDetails(request); }}
                                 style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: 0, display: "flex" }}
                                 title="View Coordinator Details"
@@ -216,10 +216,10 @@ function HodDashboard() {
                             <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.slots.length} Slots</p>
                           </div>
                         </div>
-                        
+
                         <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile() ? "flex-start" : "flex-end", gap: "15px", minWidth: "150px" }}>
                           <StatusBadge status={request.status} />
-                          
+
                           {request.status.includes("REJECTED") && request.rejectionReason && (
                             <div style={{ background: "rgba(255,0,0,0.2)", padding: "8px", borderRadius: "6px", fontSize: "13px", color: "#fff", marginTop: "5px" }}>
                               <strong style={{ color: "#fff" }}>Reason:</strong> {request.rejectionReason}
@@ -227,48 +227,48 @@ function HodDashboard() {
                           )}
 
                           {request.status === "PENDING_HOD" && (
-                             <div style={{ display: "flex", gap: "10px" }}>
-                               <button
-                                  onClick={(e) => { e.stopPropagation(); handleAction(request._id, "approve"); }}
-                                  disabled={actionLoading === request._id}
-                                  style={{
-                                    background: "#10B981",
-                                    border: "none",
-                                    color: "#fff",
-                                    padding: "8px 12px",
-                                    borderRadius: "6px",
-                                    cursor: actionLoading === request._id ? "not-allowed" : "pointer",
-                                    fontSize: "13px",
-                                    fontWeight: "500",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "5px"
-                                  }}
-                               >
-                                  <CheckCircle size={16} />
-                                  Approve
-                               </button>
-                               <button
-                                  onClick={(e) => { e.stopPropagation(); handleAction(request._id, "reject"); }}
-                                  disabled={actionLoading === request._id}
-                                  style={{
-                                    background: "#EF4444",
-                                    border: "none",
-                                    color: "#fff",
-                                    padding: "8px 12px",
-                                    borderRadius: "6px",
-                                    cursor: actionLoading === request._id ? "not-allowed" : "pointer",
-                                    fontSize: "13px",
-                                    fontWeight: "500",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "5px"
-                                  }}
-                               >
-                                  <XCircle size={16} />
-                                  Reject
-                               </button>
-                             </div>
+                            <div style={{ display: "flex", gap: "10px" }}>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleAction(request._id, "approve"); }}
+                                disabled={actionLoading === request._id}
+                                style={{
+                                  background: "#10B981",
+                                  border: "none",
+                                  color: "#fff",
+                                  padding: "8px 12px",
+                                  borderRadius: "6px",
+                                  cursor: actionLoading === request._id ? "not-allowed" : "pointer",
+                                  fontSize: "13px",
+                                  fontWeight: "500",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "5px"
+                                }}
+                              >
+                                <CheckCircle size={16} />
+                                Approve
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleAction(request._id, "reject"); }}
+                                disabled={actionLoading === request._id}
+                                style={{
+                                  background: "#EF4444",
+                                  border: "none",
+                                  color: "#fff",
+                                  padding: "8px 12px",
+                                  borderRadius: "6px",
+                                  cursor: actionLoading === request._id ? "not-allowed" : "pointer",
+                                  fontSize: "13px",
+                                  fontWeight: "500",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "5px"
+                                }}
+                              >
+                                <XCircle size={16} />
+                                Reject
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -291,7 +291,7 @@ function HodDashboard() {
             background: "#fff", borderRadius: "12px", width: "100%", maxWidth: "400px",
             overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)"
           }}>
-            <div style={{ background: "#6D28D9", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ background: "#a48cc9", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, color: "#fff" }}>Coordinator Details</h3>
               <button onClick={() => setSelectedCoordinator(null)} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}>
                 <X size={20} />

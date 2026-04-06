@@ -29,19 +29,19 @@ function HodLayout() {
 
   return (
     <>
-      <ShapeGrid 
+      <ShapeGrid
         speed={0.5}
         squareSize={40}
         direction="left"
-        borderColor="#6D28D9"
+        borderColor="#a48cc9"
         hoverFillColor="#C4B5FD"
         shape="hexagon"
         hoverTrailAmount={0}
       />
       <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1, overflowX: "hidden" }}>
-        
+
         {isMobile && !isCollapsed && (
-          <div 
+          <div
             onClick={() => setIsCollapsed(true)}
             style={{
               position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -53,7 +53,7 @@ function HodLayout() {
         <aside style={{
           width: isMobile ? (isCollapsed ? "0px" : "240px") : (isCollapsed ? "80px" : "240px"),
           transition: "width 0.3s ease",
-          background: "#6D28D9",
+          background: "#a48cc9",
           borderRight: "none",
           padding: (isMobile && isCollapsed) ? "0" : (isCollapsed ? "20px 10px" : "20px"),
           display: "flex",
@@ -64,11 +64,11 @@ function HodLayout() {
           zIndex: 50,
           whiteSpace: "nowrap"
         }}>
-          
+
           <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", marginBottom: "30px", opacity: (isMobile && isCollapsed) ? 0 : 1 }}>
             {!isCollapsed && <h2 style={{ color: "#fff", margin: 0 }}>HOD</h2>}
             {!isMobile && (
-              <button 
+              <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#F3E8FF", display: "flex", alignItems: "center", padding: "4px" }}
               >
@@ -78,16 +78,16 @@ function HodLayout() {
           </div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <NavItem to="/hod/dashboard" icon={<LayoutDashboard size={20}/>} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
-            <NavItem to="/hod/approved" icon={<CheckCircle size={20}/>} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
-            <NavItem to="/hod/rejected" icon={<XCircle size={20}/>} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
-            <NavItem to="/hod/profile" icon={<User size={20}/>} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
+            <NavItem to="/hod/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
+            <NavItem to="/hod/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
+            <NavItem to="/hod/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
+            <NavItem to="/hod/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
           </div>
 
           <div style={{ flex: 1 }}></div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <button 
+            <button
               onClick={handleLogout}
               style={{
                 display: "flex",
@@ -96,7 +96,7 @@ function HodLayout() {
                 gap: "10px",
                 padding: "10px",
                 borderRadius: "6px",
-                background: "#5B21B6",
+                background: "#d15c78",
                 color: "#DDD6FE",
                 border: "none",
                 cursor: "pointer",
@@ -113,10 +113,10 @@ function HodLayout() {
         </aside>
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          
+
           <header style={{
             height: "60px",
-            background: "#6D28D9",
+            background: "#a48cc9",
             color: "#fff",
             borderBottom: "none",
             display: "flex",
@@ -125,7 +125,7 @@ function HodLayout() {
             gap: "15px"
           }}>
             {isMobile && (
-              <button 
+              <button
                 onClick={() => setIsCollapsed(false)}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#F3E8FF", display: "flex", alignItems: "center", padding: "4px" }}
               >

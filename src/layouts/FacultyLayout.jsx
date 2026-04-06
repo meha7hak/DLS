@@ -53,7 +53,7 @@ function FacultyLayout() {
         <aside style={{
           width: isMobile ? (isCollapsed ? "0px" : "240px") : (isCollapsed ? "80px" : "240px"),
           transition: "width 0.3s ease",
-          background: "#BE123C",
+          background: "#d15c78",
           borderRight: "none",
           padding: (isMobile && isCollapsed) ? "0" : (isCollapsed ? "20px 10px" : "20px"),
           display: "flex",
@@ -116,7 +116,7 @@ function FacultyLayout() {
 
           <header style={{
             height: "60px",
-            background: "#BE123C",
+            background: "#d15c78",
             color: "#fff",
             borderBottom: "none",
             display: "flex",
