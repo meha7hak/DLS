@@ -168,12 +168,6 @@ function Login() {
                     Don't have an account? Register
                 </p>
 
-                {/* DEV QUICK LINKS */}
-                <div style={{ marginTop: "20px", paddingTop: "15px", borderTop: "1px solid #E2E8F0", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
-                    <span style={{ color: "#64748b", cursor: "pointer", fontWeight: "600" }} onClick={() => navigate("/student/dashboard")}>Student</span>
-                    <span style={{ color: "#64748b", cursor: "pointer", fontWeight: "600" }} onClick={() => navigate("/faculty/dashboard")}>Faculty</span>
-                    <span style={{ color: "#64748b", cursor: "pointer", fontWeight: "600" }} onClick={() => navigate("/hod/dashboard")}>HOD</span>
-                </div>
 
             </div>
 
