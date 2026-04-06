@@ -40,7 +40,6 @@ function CoordinatorLayout() {
       />
       <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1, overflowX: "hidden" }}>
         
-        {/* Mobile Overlay Background */}
         {isMobile && !isCollapsed && (
           <div 
             onClick={() => setIsCollapsed(true)}
@@ -54,8 +53,8 @@ function CoordinatorLayout() {
         <aside style={{
           width: isMobile ? (isCollapsed ? "0px" : "240px") : (isCollapsed ? "80px" : "240px"),
           transition: "width 0.3s ease",
-          background: "#fff",
-          borderRight: "1px solid #E2E8F0",
+          background: "#1E3A8A",
+          borderRight: "none",
           padding: (isMobile && isCollapsed) ? "0" : (isCollapsed ? "20px 10px" : "20px"),
           display: "flex",
           flexDirection: "column",
@@ -66,11 +65,11 @@ function CoordinatorLayout() {
           whiteSpace: "nowrap"
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", marginBottom: "30px", opacity: (isMobile && isCollapsed) ? 0 : 1 }}>
-            {!isCollapsed && <h2 style={{ color: "#0D9488", margin: 0 }}>Coordinator</h2>}
+            {!isCollapsed && <h2 style={{ color: "#fff", margin: 0 }}>Coordinator</h2>}
             {!isMobile && (
               <button 
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", padding: "4px" }}
+                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#DBEAFE", display: "flex", alignItems: "center", padding: "4px" }}
               >
                 <Menu size={24} />
               </button>
@@ -93,8 +92,8 @@ function CoordinatorLayout() {
                 gap: "10px",
                 padding: "10px",
                 borderRadius: "6px",
-                background: "#FEE2E2",
-                color: "#EF4444",
+                background: "#1E40AF",
+                color: "#BFDBFE",
                 border: "none",
                 cursor: "pointer",
                 width: "100%",
@@ -102,17 +101,18 @@ function CoordinatorLayout() {
               }}
               title={isCollapsed ? "Logout" : ""}
             >
-              <LogOut size={20} />
+              <LogOut size={20} color="#BFDBFE" />
               {(!isCollapsed || isMobile) && <span style={{ fontWeight: 500 }}>Logout</span>}
             </button>
           </div>
         </aside>
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, marginLeft: isMobile ? 0 : 0 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <header style={{
             height: "60px",
-            background: "#fff",
-            borderBottom: "1px solid #E2E8F0",
+            background: "#1E3A8A",
+            color: "#fff",
+            borderBottom: "none",
             display: "flex",
             alignItems: "center",
             padding: "0 20px",
@@ -121,12 +121,12 @@ function CoordinatorLayout() {
             {isMobile && (
               <button 
                 onClick={() => setIsCollapsed(false)}
-                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", padding: "4px" }}
+                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#DBEAFE", display: "flex", alignItems: "center", padding: "4px" }}
               >
                 <Menu size={24} />
               </button>
             )}
-            <h3>Coordinator Dashboard</h3>
+            <h3 style={{ margin: 0 }}>Coordinator Dashboard</h3>
           </header>
           <main style={{ padding: "20px", flex: 1, overflowX: "auto" }}>
             <Outlet />
@@ -150,8 +150,8 @@ function NavItem({ to, icon, children, isCollapsed }) {
         padding: "10px",
         borderRadius: "6px",
         marginBottom: "8px",
-        background: isActive ? "#CCFBF1" : "transparent",
-        color: isActive ? "#0D9488" : "#475569",
+        background: isActive ? "#1E40AF" : "transparent",
+        color: isActive ? "#fff" : "#EFF6FF",
         whiteSpace: "nowrap",
         transition: "all 0.2s ease"
       })}

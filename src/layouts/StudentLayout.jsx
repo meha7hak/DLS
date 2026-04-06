@@ -1,11 +1,25 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LayoutDashboard, FilePlus, ClipboardList, User, Menu, LogOut } from "lucide-react";
 import ShapeGrid from "../components/Background";
 
 function StudentLayout() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
+        setIsCollapsed(true);
+      } else {
+        setIsCollapsed(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -24,77 +38,103 @@ function StudentLayout() {
         shape="hexagon"
         hoverTrailAmount={0}
       />
-      <div style={{ display: "flex", minHeight: "100vh" }}>
+      <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1, overflowX: "hidden" }}>
+
+        {isMobile && !isCollapsed && (
+          <div 
+            onClick={() => setIsCollapsed(true)}
+            style={{
+              position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+              background: "rgba(0,0,0,0.5)", zIndex: 40
+            }}
+          />
+        )}
 
         <aside style={{
-          width: isCollapsed ? "80px" : "240px",
+          width: isMobile ? (isCollapsed ? "0px" : "240px") : (isCollapsed ? "80px" : "240px"),
           transition: "width 0.3s ease",
           background: "#fff",
           borderRight: "1px solid #E2E8F0",
-          padding: isCollapsed ? "20px 10px" : "20px",
+          padding: (isMobile && isCollapsed) ? "0" : (isCollapsed ? "20px 10px" : "20px"),
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden"
+          overflow: "hidden",
+          position: isMobile ? "fixed" : "relative",
+          height: "100vh",
+          zIndex: 50,
+          whiteSpace: "nowrap"
         }}>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", marginBottom: "30px" }}>
-            {!isCollapsed && <h2 style={{ color: "#0D9488", margin: 0 }}>DLS</h2>}
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              style={{ background: "transparent", border: "none", cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", padding: "4px" }}
-            >
-              <Menu size={24} />
-            </button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", marginBottom: "30px", opacity: (isMobile && isCollapsed) ? 0 : 1 }}>
+            {!isCollapsed && <h2 style={{ color: "#0D9488", margin: 0 }}>Student</h2>}
+            {!isMobile && (
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", padding: "4px" }}
+              >
+                <Menu size={24} />
+              </button>
+            )}
           </div>
 
-          <NavItem to="/student/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed}>Dashboard</NavItem>
-          <NavItem to="/student/apply" icon={<FilePlus size={20} />} isCollapsed={isCollapsed}>Apply Leave</NavItem>
-          <NavItem to="/student/applications" icon={<ClipboardList size={20} />} isCollapsed={isCollapsed}>My Applications</NavItem>
-          <NavItem to="/student/profile" icon={<User size={20} />} isCollapsed={isCollapsed}>Profile</NavItem>
+          <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
+            <NavItem to="/student/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
+            <NavItem to="/student/apply" icon={<FilePlus size={20} />} isCollapsed={isCollapsed && !isMobile}>Apply Leave</NavItem>
+            <NavItem to="/student/applications" icon={<ClipboardList size={20} />} isCollapsed={isCollapsed && !isMobile}>My Applications</NavItem>
+            <NavItem to="/student/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
+          </div>
 
           <div style={{ flex: 1 }}></div>
 
-          <button
-            onClick={handleLogout}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: isCollapsed ? "center" : "flex-start",
-              gap: "10px",
-              padding: "10px",
-              borderRadius: "6px",
-              background: "#FEE2E2",
-              color: "#EF4444",
-              border: "none",
-              cursor: "pointer",
-              width: "100%",
-              transition: "all 0.2s ease"
-            }}
-            title={isCollapsed ? "Logout" : ""}
-          >
-            <LogOut size={20} />
-            {!isCollapsed && <span style={{ fontWeight: 500 }}>Logout</span>}
-          </button>
+          <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
+            <button
+              onClick={handleLogout}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: (isCollapsed && !isMobile) ? "center" : "flex-start",
+                gap: "10px",
+                padding: "10px",
+                borderRadius: "6px",
+                background: "#FEE2E2",
+                color: "#EF4444",
+                border: "none",
+                cursor: "pointer",
+                width: "100%",
+                transition: "all 0.2s ease"
+              }}
+              title={isCollapsed ? "Logout" : ""}
+            >
+              <LogOut size={20} />
+              {(!isCollapsed || isMobile) && <span style={{ fontWeight: 500 }}>Logout</span>}
+            </button>
+          </div>
 
         </aside>
 
-        {/* Right Section */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
 
-          {/* Topbar */}
           <header style={{
             height: "60px",
             background: "#fff",
             borderBottom: "1px solid #E2E8F0",
             display: "flex",
             alignItems: "center",
-            padding: "0 20px"
+            padding: "0 20px",
+            gap: "15px"
           }}>
-            <h3>Student Dashboard</h3>
+            {isMobile && (
+              <button 
+                onClick={() => setIsCollapsed(false)}
+                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", padding: "4px" }}
+              >
+                <Menu size={24} />
+              </button>
+            )}
+            <h3 style={{ margin: 0, color: "#1e293b" }}>Student Dashboard</h3>
           </header>
 
-          {/* Page Content */}
-          <main style={{ padding: "20px" }}>
+          <main style={{ padding: "20px", flex: 1, overflowX: "auto" }}>
             <Outlet />
           </main>
 

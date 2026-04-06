@@ -8,11 +8,16 @@ function Dashboard() {
   const [userInfo, setUserInfo] = useState(null);
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAllLeaves, setShowAllLeaves] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    
     const data = localStorage.getItem("userInfo");
     if (data) {
       setUserInfo(JSON.parse(data));
@@ -21,7 +26,11 @@ function Dashboard() {
     const newSocket = io(API_BASE);
     newSocket.on("leaveCreated", () => fetchLeaves());
     newSocket.on("leaveUpdated", () => fetchLeaves());
-    return () => newSocket.disconnect();
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      newSocket.disconnect();
+    };
   }, []);
 
   const fetchLeaves = async () => {
@@ -66,8 +75,8 @@ function Dashboard() {
   const rejectedCount = leaves.filter(l => l.status.includes('REJECTED')).length;
 
   return (
-    <div>
-      <h2 style={{ marginBottom: "20px", textTransform: "capitalize" }}>
+    <div style={{ padding: isMobile ? "10px" : "0" }}>
+      <h2 style={{ marginBottom: "20px", textTransform: "capitalize", color: "#1e293b" }}>
         {userInfo ? `${userInfo.name}'s Dashboard` : "Dashboard"}
       </h2>
 
@@ -87,7 +96,7 @@ function Dashboard() {
       <div style={{
         background: "#fff",
         borderRadius: "12px",
-        padding: "24px",
+        padding: isMobile ? "15px" : "24px",
         border: "1px solid #E2E8F0",
         maxWidth: "900px",
         margin: "0 auto"
@@ -100,25 +109,26 @@ function Dashboard() {
           <p style={{ color: "#64748b", textAlign: "center", padding: "20px" }}>No recent applications found.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            {leaves.map((leave) => (
+            {(showAllLeaves ? leaves : leaves.slice(0, 7)).map((leave) => (
               <div key={leave._id} style={{
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: isMobile ? "column" : "row",
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: isMobile ? "flex-start" : "center",
                 padding: "16px",
                 border: "1px solid #f1f5f9",
                 borderRadius: "10px",
                 background: "#fafafa",
                 transition: "all 0.2s",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                gap: "15px"
               }}>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, width: "100%" }}>
                   <h4 style={{ margin: "0 0 4px 0", color: "#0f172a", fontSize: "16px" }}>{leave.eventName}</h4>
                   <p style={{ margin: "0 0 8px 0", fontSize: "14px", color: "#0D9488", fontWeight: "500" }}>
                     {new Date(leave.eventDate).toLocaleDateString()}
                   </p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "13px", color: "#475569" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "8px", fontSize: "13px", color: "#475569" }}>
                     <div>
                       <strong style={{ color: "#334155" }}>Coordinator:</strong> {leave.coordinatorName}
                     </div>
@@ -129,14 +139,14 @@ function Dashboard() {
                       <strong style={{ color: "#334155" }}>Slots Requested:</strong> {leave.slots ? leave.slots.join(", ") : "N/A"}
                     </div>
                     {leave.rejectionReason && (
-                      <div style={{ gridColumn: "1 / -1", color: "#EF4444", marginTop: "4px", background: "#FEF2F2", padding: "6px 10px", borderRadius: "6px", border: "1px solid #FECACA" }}>
+                      <div style={{ gridColumn: isMobile ? "1" : "1 / -1", color: "#EF4444", marginTop: "4px", background: "#FEF2F2", padding: "6px 10px", borderRadius: "6px", border: "1px solid #FECACA" }}>
                         <strong>Rejection Reason:</strong> {leave.rejectionReason}
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", flexDirection: isMobile ? "column" : "row", gap: "10px", width: isMobile ? "100%" : "auto" }}>
                   <StatusBadge status={leave.status} />
                   
                   {(leave.status.includes("PENDING") || leave.status.includes("REJECTED")) && (
@@ -182,6 +192,26 @@ function Dashboard() {
                 </div>
               </div>
             ))}
+            {leaves.length > 7 && (
+              <button 
+                onClick={() => setShowAllLeaves(!showAllLeaves)}
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #cbd5e1",
+                  color: "#334155",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "500",
+                  marginTop: "10px",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.target.style.background = "#e2e8f0"}
+                onMouseLeave={(e) => e.target.style.background = "#f8fafc"}
+              >
+                {showAllLeaves ? "Show Less" : "Show More"}
+              </button>
+            )}
           </div>
         )}
       </div>

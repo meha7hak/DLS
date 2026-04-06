@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import StatusBadge from "../../components/StatusBadge";
-import { CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Info, X } from "lucide-react";
 import { io } from "socket.io-client";
 
 function HodDashboard() {
@@ -8,6 +8,7 @@ function HodDashboard() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [expandedGroups, setExpandedGroups] = useState({});
+  const [selectedCoordinator, setSelectedCoordinator] = useState(null);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -71,6 +72,27 @@ function HodDashboard() {
     }
   };
 
+  const fetchCoordinatorDetails = async (request) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/auth/users?role=COORDINATOR`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const coordinators = await res.json();
+        const coordinator = coordinators.find(c => c.name === request.coordinatorName);
+        if (coordinator) {
+          setSelectedCoordinator(coordinator);
+        } else {
+          setSelectedCoordinator({ name: request.coordinatorName, email: "Not Available", phone: "Not Available" });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch coordinator details");
+      setSelectedCoordinator({ name: request.coordinatorName, email: "Not Available", phone: "Not Available" });
+    }
+  };
+
   const groupByClass = (reqs) => {
     return reqs.reduce((acc, req) => {
       const dept = req.student?.department || "Unknown Dept";
@@ -93,30 +115,26 @@ function HodDashboard() {
   const groupedRequests = groupByClass(requests);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: isMobile() ? "10px" : "20px" }}>
       <h2 style={{ marginBottom: "20px", color: "#1e293b" }}>HOD Dashboard</h2>
-      <p style={{ color: "#64748b", marginBottom: "30px" }}>
-        Review and manage final approvals for duty leave requests across departments.
-      </p>
 
       <div style={{
-        background: "#fff",
+        background: "#6D28D9",
         borderRadius: "12px",
-        padding: "24px",
-        border: "1px solid #E2E8F0",
+        padding: isMobile() ? "15px" : "24px",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
         maxWidth: "1000px"
       }}>
-        <h3 style={{ marginBottom: "20px", color: "#334155" }}>Pending HOD Approvals</h3>
+        <h3 style={{ marginBottom: "20px", color: "#fff" }}>Pending HOD Approvals</h3>
         
         {loading ? (
-          <p>Loading requests...</p>
+          <p style={{ color: "#fff" }}>Loading requests...</p>
         ) : Object.keys(groupedRequests).length === 0 ? (
-          <p style={{ color: "#64748b", textAlign: "center", padding: "20px" }}>No pending requests found for HOD approval.</p>
+          <p style={{ color: "#F3E8FF", textAlign: "center", padding: "20px" }}>No pending requests found for HOD approval.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {Object.keys(groupedRequests).map((groupKey) => (
-              <div key={groupKey} style={{ border: "1px solid #E2E8F0", borderRadius: "10px", overflow: "hidden" }}>
-                {/* Accordion Header */}
+              <div key={groupKey} style={{ border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", overflow: "hidden" }}>
                 <div 
                   onClick={() => toggleGroup(groupKey)}
                   style={{
@@ -124,50 +142,59 @@ function HodDashboard() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "15px 20px",
-                    background: "#F8FAFC",
+                    background: "#5B21B6",
                     cursor: "pointer",
                     userSelect: "none"
                   }}
                 >
-                  <h4 style={{ margin: 0, color: "#0f172a", fontSize: "16px" }}>
-                    {groupKey} <span style={{ color: "#64748b", fontSize: "14px", fontWeight: "normal" }}>({groupedRequests[groupKey].length})</span>
+                  <h4 style={{ margin: 0, color: "#fff", fontSize: "16px" }}>
+                    {groupKey} <span style={{ color: "#C4B5FD", fontSize: "14px", fontWeight: "normal" }}>({groupedRequests[groupKey].length})</span>
                   </h4>
-                  {expandedGroups[groupKey] ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+                  {expandedGroups[groupKey] ? <ChevronUp size={20} color="#C4B5FD" /> : <ChevronDown size={20} color="#C4B5FD" />}
                 </div>
 
-                {/* Accordion Content */}
                 {expandedGroups[groupKey] && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "15px", background: "#fff" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "15px", background: "#6D28D9" }}>
                     {groupedRequests[groupKey].map((request) => (
                       <div key={request._id} style={{
                         display: "flex",
-                        flexDirection: "row",
+                        flexDirection: isMobile() ? "column" : "row",
                         justifyContent: "space-between",
-                        alignItems: "center",
+                        alignItems: isMobile() ? "flex-start" : "center",
                         padding: "20px",
-                        border: "1px solid #f1f5f9",
                         borderRadius: "10px",
-                        background: "#fafafa",
-                        boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                        background: "#5B21B6",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                        color: "#fff",
+                        gap: "15px"
                       }}>
-                        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", gap: "15px" }}>
+                        <div style={{ flex: 1, display: "grid", gridTemplateColumns: isMobile() ? "1fr" : "1.5fr 1fr 1fr", gap: "15px", width: "100%" }}>
                           <div>
-                            <h4 style={{ margin: "0 0 4px 0", color: "#0f172a" }}>{request.student?.name || "Unknown Student"}</h4>
-                            <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>Roll No: {request.student?.rollno || "N/A"}</p>
+                            <h4 style={{ margin: "0 0 4px 0", color: "#fff" }}>{request.student?.name || "Unknown Student"}</h4>
+                            <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>Roll No: {request.student?.rollno || "N/A"}</p>
                           </div>
                           <div>
-                            <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px" }}>Event Details</h4>
-                            <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{request.eventName}</p>
-                            <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{new Date(request.eventDate).toLocaleDateString()}</p>
+                            <h4 style={{ margin: "0 0 4px 0", color: "#C4B5FD", fontSize: "15px" }}>Event Details</h4>
+                            <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.eventName}</p>
+                            <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{new Date(request.eventDate).toLocaleDateString()}</p>
                           </div>
                           <div>
-                            <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px" }}>Coordinator</h4>
-                            <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{request.coordinatorName}</p>
-                            <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>{request.slots.length} Slots</p>
+                            <h4 style={{ margin: "0 0 4px 0", color: "#C4B5FD", fontSize: "15px" }}>Coordinator</h4>
+                            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                              <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.coordinatorName}</p>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); fetchCoordinatorDetails(request); }}
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: 0, display: "flex" }}
+                                title="View Coordinator Details"
+                              >
+                                <Info size={16} />
+                              </button>
+                            </div>
+                            <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.slots.length} Slots</p>
                           </div>
                         </div>
                         
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "15px", minWidth: "150px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile() ? "flex-start" : "flex-end", gap: "15px", minWidth: "150px" }}>
                           <StatusBadge status={request.status} />
                           
                           {request.status === "PENDING_HOD" && (
@@ -176,7 +203,7 @@ function HodDashboard() {
                                   onClick={(e) => { e.stopPropagation(); handleAction(request._id, "approve"); }}
                                   disabled={actionLoading === request._id}
                                   style={{
-                                    background: "#0D9488",
+                                    background: "#10B981",
                                     border: "none",
                                     color: "#fff",
                                     padding: "8px 12px",
@@ -186,8 +213,7 @@ function HodDashboard() {
                                     fontWeight: "500",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "5px",
-                                    opacity: actionLoading === request._id ? 0.7 : 1
+                                    gap: "5px"
                                   }}
                                >
                                   <CheckCircle size={16} />
@@ -197,7 +223,7 @@ function HodDashboard() {
                                   onClick={(e) => { e.stopPropagation(); handleAction(request._id, "reject"); }}
                                   disabled={actionLoading === request._id}
                                   style={{
-                                    background: "#DC2626",
+                                    background: "#EF4444",
                                     border: "none",
                                     color: "#fff",
                                     padding: "8px 12px",
@@ -207,8 +233,7 @@ function HodDashboard() {
                                     fontWeight: "500",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "5px",
-                                    opacity: actionLoading === request._id ? 0.7 : 1
+                                    gap: "5px"
                                   }}
                                >
                                   <XCircle size={16} />
@@ -226,8 +251,36 @@ function HodDashboard() {
           </div>
         )}
       </div>
+
+      {selectedCoordinator && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.5)", zIndex: 100,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: "20px"
+        }}>
+          <div style={{
+            background: "#fff", borderRadius: "12px", width: "100%", maxWidth: "400px",
+            overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{ background: "#6D28D9", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, color: "#fff" }}>Coordinator Details</h3>
+              <button onClick={() => setSelectedCoordinator(null)} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ padding: "20px" }}>
+              <p style={{ margin: "0 0 10px 0", color: "#334155" }}><strong>Name:</strong> {selectedCoordinator.name}</p>
+              <p style={{ margin: "0 0 10px 0", color: "#334155" }}><strong>Email:</strong> {selectedCoordinator.email}</p>
+              <p style={{ margin: "0 0 10px 0", color: "#334155" }}><strong>Phone:</strong> {selectedCoordinator.phone || "N/A"}</p>
+              {selectedCoordinator.department && <p style={{ margin: "0 0 10px 0", color: "#334155" }}><strong>Department:</strong> {selectedCoordinator.department}</p>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const isMobile = () => window.innerWidth < 768;
 
 export default HodDashboard;

@@ -35,7 +35,7 @@ export const applyLeave = async (req, res) => {
         if (io) io.emit("leaveCreated", createdLeave);
 
         const baseUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
-        const dashboardUrl = `${baseUrl}/coordinator/dashboard?requestId=${createdLeave._id}`;
+        const dashboardUrl = `${baseUrl}/`;
         try {
             await sendEmail({
                 to: coordinatorEmail,
@@ -43,7 +43,7 @@ export const applyLeave = async (req, res) => {
                 text: `A new duty leave request has been submitted by ${req.user.name}.`,
                 html: `
                     <h3>New Duty Leave Request</h3>
-                    <p>Student <b>${req.user.name}</b> has applied for a duty leave for the event: <b>${eventName}</b>.</p>
+                    <p>${req.user.name} applied duty leave for ${eventName} from ${department}</p>
                     <a href="${dashboardUrl}" style="background-color:#0D9488; color:white; padding:10px 15px;text-decoration:none; border-radius:5px;">Go To Dashboard</a>
                 `
             });
@@ -143,10 +143,12 @@ export const getCoordinatorRequests = async (req, res) => {
         // Use req.query.status logic if provided, but default to pending
         const filterStatus = req.query.status || "PENDING_COORDINATOR";
 
-        const leaves = await Leave.find({ 
-            coordinatorEmail: { $regex: new RegExp(`^${(req.user.email || "").trim()}$`, "i") },
-            status: filterStatus
-        })
+        const query = { coordinatorEmail: { $regex: new RegExp(`^${(req.user.email || "").trim()}$`, "i") } };
+        if (filterStatus !== "ALL") {
+            query.status = filterStatus;
+        }
+
+        const leaves = await Leave.find(query)
         .populate('student', 'name rollno semester department')
         .sort({ createdAt: -1 });
 
@@ -202,7 +204,12 @@ export const coordReject = async (req, res) => {
 export const getClassInchargeRequests = async (req, res) => {
     try {
         const filterStatus = req.query.status || "PENDING_CI";
-        const leaves = await Leave.find({ status: filterStatus })
+        const query = {};
+        if (filterStatus !== "ALL") {
+            query.status = filterStatus;
+        }
+
+        const leaves = await Leave.find(query)
             .populate({
                 path: 'student',
                 match: { semester: req.user.semester, department: req.user.department },
