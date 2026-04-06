@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, LogOut, Menu, CheckCircle, XCircle } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, CheckCircle, XCircle, User } from "lucide-react";
 import ShapeGrid from "../components/Background";
 
 function CoordinatorLayout() {
