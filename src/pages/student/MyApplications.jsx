@@ -92,6 +92,47 @@ function MyApplications() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <style>{`
+        .app-card {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px;
+          border: 1px solid #f1f5f9;
+          border-radius: 10px;
+          background: #fafafa;
+          transition: all 0.2s;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .grid-details {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          font-size: 13px;
+          color: #475569;
+        }
+        .app-actions {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+        @media (max-width: 768px) {
+          .app-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+          }
+          .grid-details {
+            grid-template-columns: 1fr;
+          }
+          .app-actions {
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+          }
+        }
+      `}</style>
       <h2 style={{ marginBottom: "20px", textTransform: "capitalize", color: "#1e293b" }}>
         My Applications
       </h2>
@@ -110,24 +151,13 @@ function MyApplications() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {leaves.map((leave) => (
-              <div key={leave._id} style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "16px",
-                border: "1px solid #f1f5f9",
-                borderRadius: "10px",
-                background: "#fafafa",
-                transition: "all 0.2s",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-              }}>
-                <div style={{ flex: 1 }}>
+              <div key={leave._id} className="app-card">
+                <div style={{ flex: 1, width: "100%" }}>
                   <h4 style={{ margin: "0 0 4px 0", color: "#0f172a", fontSize: "16px" }}>{leave.eventName}</h4>
                   <p style={{ margin: "0 0 8px 0", fontSize: "14px", color: "#0D9488", fontWeight: "500" }}>
                     {new Date(leave.eventDate).toLocaleDateString()}
                   </p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "13px", color: "#475569" }}>
+                  <div className="grid-details">
                     <div>
                       <strong style={{ color: "#334155" }}>Coordinator:</strong> {leave.coordinatorName}
                     </div>
@@ -145,7 +175,7 @@ function MyApplications() {
                   </div>
                 </div>
                 
-                <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <div className="app-actions">
                   <StatusBadge status={leave.status} />
                   
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

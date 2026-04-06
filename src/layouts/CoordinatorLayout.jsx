@@ -80,6 +80,7 @@ function CoordinatorLayout() {
             <NavItem to="/coordinator/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
             <NavItem to="/coordinator/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
             <NavItem to="/coordinator/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
+            <NavItem to="/coordinator/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
           </div>
 
           <div style={{ flex: 1 }}></div>
