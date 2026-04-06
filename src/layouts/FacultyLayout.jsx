@@ -29,7 +29,7 @@ function FacultyLayout() {
 
   return (
     <>
-      <ShapeGrid 
+      <ShapeGrid
         speed={0.5}
         squareSize={40}
         direction="left"
@@ -39,9 +39,9 @@ function FacultyLayout() {
         hoverTrailAmount={0}
       />
       <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1, overflowX: "hidden" }}>
-        
+
         {isMobile && !isCollapsed && (
-          <div 
+          <div
             onClick={() => setIsCollapsed(true)}
             style={{
               position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -64,11 +64,11 @@ function FacultyLayout() {
           zIndex: 50,
           whiteSpace: "nowrap"
         }}>
-          
+
           <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", marginBottom: "30px", opacity: (isMobile && isCollapsed) ? 0 : 1 }}>
             {!isCollapsed && <h2 style={{ color: "#fff", margin: 0 }}>Faculty</h2>}
             {!isMobile && (
-              <button 
+              <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#FEE2E2", display: "flex", alignItems: "center", padding: "4px" }}
               >
@@ -78,16 +78,16 @@ function FacultyLayout() {
           </div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <NavItem to="/faculty/dashboard" icon={<LayoutDashboard size={20}/>} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
-            <NavItem to="/faculty/approved" icon={<CheckCircle size={20}/>} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
-            <NavItem to="/faculty/rejected" icon={<XCircle size={20}/>} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
-            <NavItem to="/faculty/profile" icon={<User size={20}/>} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
+            <NavItem to="/faculty/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
+            <NavItem to="/faculty/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
+            <NavItem to="/faculty/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
+            <NavItem to="/faculty/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
           </div>
 
           <div style={{ flex: 1 }}></div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <button 
+            <button
               onClick={handleLogout}
               style={{
                 display: "flex",
@@ -113,7 +113,7 @@ function FacultyLayout() {
         </aside>
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          
+
           <header style={{
             height: "60px",
             background: "#BE123C",
@@ -125,7 +125,7 @@ function FacultyLayout() {
             gap: "15px"
           }}>
             {isMobile && (
-              <button 
+              <button
                 onClick={() => setIsCollapsed(false)}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#FEE2E2", display: "flex", alignItems: "center", padding: "4px" }}
               >
