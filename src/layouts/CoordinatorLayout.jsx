@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, CheckCircle, XCircle } from "lucide-react";
 import ShapeGrid from "../components/Background";
 
 function CoordinatorLayout() {
@@ -29,19 +29,19 @@ function CoordinatorLayout() {
 
   return (
     <>
-      <ShapeGrid 
+      <ShapeGrid
         speed={0.5}
         squareSize={40}
         direction="left"
-        borderColor="#1E3A8A"
+        borderColor="#bb1fbc82"
         hoverFillColor="#FEF08A"
         shape="square"
         hoverTrailAmount={0}
       />
       <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1, overflowX: "hidden" }}>
-        
+
         {isMobile && !isCollapsed && (
-          <div 
+          <div
             onClick={() => setIsCollapsed(true)}
             style={{
               position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -53,7 +53,7 @@ function CoordinatorLayout() {
         <aside style={{
           width: isMobile ? (isCollapsed ? "0px" : "240px") : (isCollapsed ? "80px" : "240px"),
           transition: "width 0.3s ease",
-          background: "#1E3A8A",
+          background: "#bb1fbc82",
           borderRight: "none",
           padding: (isMobile && isCollapsed) ? "0" : (isCollapsed ? "20px 10px" : "20px"),
           display: "flex",
@@ -67,7 +67,7 @@ function CoordinatorLayout() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", marginBottom: "30px", opacity: (isMobile && isCollapsed) ? 0 : 1 }}>
             {!isCollapsed && <h2 style={{ color: "#fff", margin: 0 }}>Coordinator</h2>}
             {!isMobile && (
-              <button 
+              <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#DBEAFE", display: "flex", alignItems: "center", padding: "4px" }}
               >
@@ -77,13 +77,15 @@ function CoordinatorLayout() {
           </div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <NavItem to="/coordinator/dashboard" icon={<LayoutDashboard size={20}/>} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
+            <NavItem to="/coordinator/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
+            <NavItem to="/coordinator/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
+            <NavItem to="/coordinator/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
           </div>
 
           <div style={{ flex: 1 }}></div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <button 
+            <button
               onClick={handleLogout}
               style={{
                 display: "flex",
@@ -92,7 +94,7 @@ function CoordinatorLayout() {
                 gap: "10px",
                 padding: "10px",
                 borderRadius: "6px",
-                background: "#1E40AF",
+                background: "#f1331eff",
                 color: "#BFDBFE",
                 border: "none",
                 cursor: "pointer",
@@ -110,7 +112,7 @@ function CoordinatorLayout() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <header style={{
             height: "60px",
-            background: "#1E3A8A",
+            background: "#b49edb",
             color: "#fff",
             borderBottom: "none",
             display: "flex",
@@ -119,7 +121,7 @@ function CoordinatorLayout() {
             gap: "15px"
           }}>
             {isMobile && (
-              <button 
+              <button
                 onClick={() => setIsCollapsed(false)}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#DBEAFE", display: "flex", alignItems: "center", padding: "4px" }}
               >
@@ -150,7 +152,7 @@ function NavItem({ to, icon, children, isCollapsed }) {
         padding: "10px",
         borderRadius: "6px",
         marginBottom: "8px",
-        background: isActive ? "#1E40AF" : "transparent",
+        background: isActive ? "#b49edb" : "transparent",
         color: isActive ? "#fff" : "#EFF6FF",
         whiteSpace: "nowrap",
         transition: "all 0.2s ease"

@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import StatusBadge from "../../components/StatusBadge";
 import { CheckCircle, XCircle, Info, X } from "lucide-react";
 import { io } from "socket.io-client";
 
 function FacultyDashboard() {
+  const { status: routeStatus } = useParams();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   
-  const [activeTab, setActiveTab] = useState("requests");
   const [expanded, setExpanded] = useState(false);
   const [selectedCoordinator, setSelectedCoordinator] = useState(null);
 
@@ -40,7 +41,13 @@ function FacultyDashboard() {
   };
 
   const handleAction = async (id, action) => {
-    if (!window.confirm(`Are you sure you want to ${action} this request?`)) return;
+    let reason = "";
+    if (action === "reject") {
+      reason = window.prompt("Please provide a reason for rejecting:");
+      if (reason === null) return;
+    } else {
+      if (!window.confirm(`Are you sure you want to approve this request?`)) return;
+    }
     
     setActionLoading(id);
     try {
@@ -50,7 +57,8 @@ function FacultyDashboard() {
         headers: { 
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json" 
-        }
+        },
+        body: JSON.stringify({ reason })
       });
       
       if (res.ok) {
@@ -89,50 +97,34 @@ function FacultyDashboard() {
   };
 
   const filteredRequests = requests.filter(req => {
-    if (activeTab === "requests") return req.status === "PENDING_CI";
-    if (activeTab === "hod_approved") return req.status === "FINAL_APPROVED";
-    if (activeTab === "accepted") return req.status === "PENDING_HOD" || req.status === "FINAL_APPROVED";
-    if (activeTab === "rejected") return req.status.includes("REJECTED");
-    return true;
+    if (routeStatus === "approved") {
+      return req.status === "FINAL_APPROVED" || req.status === "PENDING_HOD";
+    }
+    if (routeStatus === "rejected") {
+      return req.status.includes("REJECTED");
+    }
+    // default for "dashboard"
+    return req.status === "PENDING_CI";
   });
 
   const displayedRequests = expanded ? filteredRequests : filteredRequests.slice(0, 4);
 
-  const TabButton = ({ id, label }) => (
-    <button
-      onClick={() => { setActiveTab(id); setExpanded(false); }}
-      style={{
-        padding: "10px 20px",
-        background: activeTab === id ? "#9F1239" : "transparent",
-        color: activeTab === id ? "#fff" : "#FFE4E6",
-        border: "none",
-        borderBottom: activeTab === id ? "2px solid #fff" : "2px solid transparent",
-        cursor: "pointer",
-        fontWeight: activeTab === id ? "600" : "500",
-        transition: "all 0.2s"
-      }}
-    >
-      {label}
-    </button>
-  );
+  let title = "Requests Overview";
+  if (routeStatus === "approved") title = "Approved Leaves";
+  if (routeStatus === "rejected") title = "Rejected Leaves";
 
   return (
-    <div style={{ padding: isMobile() ? "10px" : "20px" }}>
-      <h2 style={{ marginBottom: "20px", color: "#1e293b" }}>Requests Overview</h2>
+    <div style={{ padding: isMobile() ? "10px" : "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>{title}</h2>
 
       <div style={{
         background: "#BE123C",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-        maxWidth: "1000px"
+        maxWidth: "1000px",
+        margin: "0 auto"
       }}>
-        <div style={{ display: "flex", gap: "10px", borderBottom: "1px solid rgba(255,255,255,0.2)", marginBottom: "20px", overflowX: "auto" }}>
-          <TabButton id="requests" label="Requests" />
-          <TabButton id="accepted" label="Accepted" />
-          <TabButton id="rejected" label="Rejected" />
-          <TabButton id="hod_approved" label="HOD Approved" />
-        </div>
         
         {loading ? (
           <p style={{ color: "#fff" }}>Loading requests...</p>
@@ -183,6 +175,12 @@ function FacultyDashboard() {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile() ? "flex-start" : "flex-end", gap: "15px", minWidth: "150px" }}>
                   <StatusBadge status={request.status} />
                   
+                  {request.status.includes("REJECTED") && request.rejectionReason && (
+                    <div style={{ background: "rgba(255,0,0,0.2)", padding: "8px", borderRadius: "6px", fontSize: "13px", marginTop: "5px" }}>
+                      <strong>Reason:</strong> {request.rejectionReason}
+                    </div>
+                  )}
+
                   {request.status === "PENDING_CI" && (
                      <div style={{ display: "flex", gap: "10px" }}>
                        <button

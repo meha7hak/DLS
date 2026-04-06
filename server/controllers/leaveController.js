@@ -296,7 +296,12 @@ export const getHodRequests = async (req, res) => {
     try {
         const filterStatus = req.query.status || "PENDING_HOD";
         // HOD sees all from their department
-        const leaves = await Leave.find({ status: filterStatus })
+        const query = {};
+        if (filterStatus !== "ALL") {
+            query.status = filterStatus;
+        }
+
+        const leaves = await Leave.find(query)
             .populate({
                 path: 'student',
                 match: { department: req.user.department },

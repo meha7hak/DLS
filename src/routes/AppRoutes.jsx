@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/common/Login";
 import RoleSelect from "../pages/common/RoleSelect";
 import Register from "../pages/student/Register";
@@ -29,7 +29,8 @@ function AppRoutes() {
 
         {/* COORDINATOR ROUTES */}
         <Route path="/coordinator" element={<CoordinatorLayout />}>
-          <Route path="dashboard" element={<CoordinatorDashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path=":status" element={<CoordinatorDashboard />} />
         </Route>
 
         {/* STUDENT ROUTES */}
@@ -42,14 +43,16 @@ function AppRoutes() {
 
         {/* FACULTY ROUTES */}
         <Route path="/faculty" element={<FacultyLayout />}>
-          <Route path="dashboard" element={<FacultyDashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="profile" element={<FacultyProfile />} />
+          <Route path=":status" element={<FacultyDashboard />} />
         </Route>
 
         {/* HOD ROUTES */}
         <Route path="/hod" element={<HodLayout />}>
-          <Route path="dashboard" element={<HodDashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="profile" element={<HodProfile />} />
+          <Route path=":status" element={<HodDashboard />} />
         </Route>
 
       </Routes>

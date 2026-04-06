@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import StatusBadge from "../../components/StatusBadge";
 import { CheckCircle, XCircle, ChevronDown, ChevronUp, Info, X } from "lucide-react";
 import { io } from "socket.io-client";
 
 function HodDashboard() {
+  const { status: routeStatus } = useParams();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
@@ -23,7 +25,7 @@ function HodDashboard() {
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/leave/hod?status=PENDING_HOD`, {
+      const res = await fetch(`${API_BASE}/api/leave/hod?status=ALL`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -44,7 +46,13 @@ function HodDashboard() {
   };
 
   const handleAction = async (id, action) => {
-    if (!window.confirm(`Are you sure you want to ${action} this request?`)) return;
+    let reason = "";
+    if (action === "reject") {
+      reason = window.prompt("Please provide a reason for rejecting:");
+      if (reason === null) return;
+    } else {
+      if (!window.confirm(`Are you sure you want to approve this request?`)) return;
+    }
     
     setActionLoading(id);
     try {
@@ -55,7 +63,7 @@ function HodDashboard() {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({ reason })
       });
       
       if (res.ok) {
@@ -112,25 +120,40 @@ function HodDashboard() {
     }));
   };
 
-  const groupedRequests = groupByClass(requests);
+  const filteredRequests = requests.filter(req => {
+    if (routeStatus === "approved") {
+      return req.status === "FINAL_APPROVED";
+    }
+    if (routeStatus === "rejected") {
+      return req.status.includes("REJECTED");
+    }
+    return req.status === "PENDING_HOD"; // default for dashboard
+  });
+
+  const groupedRequests = groupByClass(filteredRequests);
+
+  let title = "Pending HOD Approvals";
+  if (routeStatus === "approved") title = "Approved Leaves";
+  if (routeStatus === "rejected") title = "Rejected Leaves";
 
   return (
-    <div style={{ padding: isMobile() ? "10px" : "20px" }}>
-      <h2 style={{ marginBottom: "20px", color: "#1e293b" }}>HOD Dashboard</h2>
+    <div style={{ padding: isMobile() ? "10px" : "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>HOD Dashboard</h2>
 
       <div style={{
         background: "#6D28D9",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-        maxWidth: "1000px"
+        maxWidth: "1000px",
+        margin: "0 auto"
       }}>
-        <h3 style={{ marginBottom: "20px", color: "#fff" }}>Pending HOD Approvals</h3>
+        <h3 style={{ marginBottom: "20px", color: "#fff" }}>{title}</h3>
         
         {loading ? (
           <p style={{ color: "#fff" }}>Loading requests...</p>
         ) : Object.keys(groupedRequests).length === 0 ? (
-          <p style={{ color: "#F3E8FF", textAlign: "center", padding: "20px" }}>No pending requests found for HOD approval.</p>
+          <p style={{ color: "#F3E8FF", textAlign: "center", padding: "20px" }}>No requests found for this category.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {Object.keys(groupedRequests).map((groupKey) => (
@@ -197,6 +220,12 @@ function HodDashboard() {
                         <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile() ? "flex-start" : "flex-end", gap: "15px", minWidth: "150px" }}>
                           <StatusBadge status={request.status} />
                           
+                          {request.status.includes("REJECTED") && request.rejectionReason && (
+                            <div style={{ background: "rgba(255,0,0,0.2)", padding: "8px", borderRadius: "6px", fontSize: "13px", color: "#fff", marginTop: "5px" }}>
+                              <strong style={{ color: "#fff" }}>Reason:</strong> {request.rejectionReason}
+                            </div>
+                          )}
+
                           {request.status === "PENDING_HOD" && (
                              <div style={{ display: "flex", gap: "10px" }}>
                                <button

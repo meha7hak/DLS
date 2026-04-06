@@ -75,8 +75,8 @@ function Dashboard() {
   const rejectedCount = leaves.filter(l => l.status.includes('REJECTED')).length;
 
   return (
-    <div style={{ padding: isMobile ? "10px" : "0" }}>
-      <h2 style={{ marginBottom: "20px", textTransform: "capitalize", color: "#1e293b" }}>
+    <div style={{ padding: isMobile ? "10px" : "0", maxWidth: "1200px", margin: "0 auto" }}>
+      <h2 style={{ marginBottom: "20px", textTransform: "capitalize", color: "#1e293b", textAlign: "center" }}>
         {userInfo ? `${userInfo.name}'s Dashboard` : "Dashboard"}
       </h2>
 

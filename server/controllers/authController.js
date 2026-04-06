@@ -9,7 +9,7 @@ const generateToken = (id) => {
 
 export const register = async (req, res) => {
     const { name, email, password, role, rollno, employeeID, department, semester } = req.body;
-    
+
     try {
         // Validation check
         if (!name || !password || !role) {
@@ -69,7 +69,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-    const { identifier, password, role } = req.body; 
+    const { identifier, password, role } = req.body;
     // identifier could be rollno (for students) or email (for staff)
 
     try {
@@ -82,12 +82,12 @@ export const login = async (req, res) => {
         }
 
         if (user && (await user.matchPassword(password))) {
-            const hasValidRole = 
-                user.role === role || 
+            const hasValidRole =
+                user.role === role ||
                 (role === "staff" && (user.role === "faculty" || user.role === "hod" || user.role === "coordinator"));
 
             if (!hasValidRole) {
-                return res.status(401).json({ message: "Role mismatch." });
+                return res.status(401).json({ message: "Wrong panel to login" });
             }
 
             res.json({
@@ -111,7 +111,7 @@ export const login = async (req, res) => {
 
 export const changePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-    
+
     try {
         const user = await User.findById(req.user._id);
 
@@ -137,7 +137,7 @@ export const updateProfilePic = async (req, res) => {
         if (user) {
             user.profilePic = req.file.path; // Cloudinary secure_url is returned here via multer-storage-cloudinary
             const updatedUser = await user.save();
-            
+
             res.json({
                 _id: updatedUser._id,
                 name: updatedUser.name,

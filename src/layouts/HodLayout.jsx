@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, ShieldCheck, User, Menu, LogOut, FileText } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, User, Menu, LogOut, FileText, CheckCircle, XCircle } from "lucide-react";
 import ShapeGrid from "../components/Background";
 
 function HodLayout() {
@@ -79,7 +79,8 @@ function HodLayout() {
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
             <NavItem to="/hod/dashboard" icon={<LayoutDashboard size={20}/>} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
-            <NavItem to="/hod/approvals" icon={<ShieldCheck size={20}/>} isCollapsed={isCollapsed && !isMobile}>Approvals</NavItem>
+            <NavItem to="/hod/approved" icon={<CheckCircle size={20}/>} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
+            <NavItem to="/hod/rejected" icon={<XCircle size={20}/>} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
             <NavItem to="/hod/profile" icon={<User size={20}/>} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
           </div>
 
