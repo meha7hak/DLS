@@ -15,9 +15,9 @@ function Login() {
     const [password, setPassword] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
-    // Password Visibility State
     const [showPassword, setShowPassword] = useState(false);
     const pwEyeRef = useRef(null);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -34,6 +34,7 @@ function Login() {
             return;
         }
 
+        setLoading(true);
         try {
             const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: "POST",
@@ -61,6 +62,8 @@ function Login() {
             }
         } catch (err) {
             setErrorMsg("Server error. Please try again later.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -156,8 +159,8 @@ function Login() {
                         </button>
                     </div>
 
-                    <button type="submit" style={btnStyle}>
-                        Login
+                    <button type="submit" style={btnStyle} disabled={loading}>
+                        {loading ? "Logging in..." : "Login"}
                     </button>
                 </form>
 
