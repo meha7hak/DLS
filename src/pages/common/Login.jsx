@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { EyeIcon } from "../../components/ui/eye";
 import { EyeClosedIcon } from "../../components/ui/eye-closed";
@@ -9,6 +9,15 @@ function Login() {
     const navigate = useNavigate();
     const [loginType, setLoginType] = useState("student"); // 'student' or 'staff'
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
+    // Mobile Detection for Performance
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Auth States
     const [identifier, setIdentifier] = useState("");
@@ -73,10 +82,10 @@ function Login() {
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
                 <Particles
                     particleColors={["#ffffff"]}
-                    particleCount={200}
+                    particleCount={isMobile ? 40 : 200}
                     particleSpread={10}
                     speed={0.1}
-                    particleBaseSize={100}
+                    particleBaseSize={isMobile ? 60 : 100}
                     moveParticlesOnHover
                     alphaParticles={false}
                     disableRotation={false}
@@ -160,7 +169,7 @@ function Login() {
                     </div>
 
                     <button type="submit" style={btnStyle} disabled={loading}>
-                        {loading ? "Logging in..." : "Login"}
+                        {(isMobile && loading) ? "Logging in..." : "Login"}
                     </button>
                 </form>
 
