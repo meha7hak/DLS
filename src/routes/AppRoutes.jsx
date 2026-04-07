@@ -16,6 +16,7 @@ import HodProfile from "../pages/hod/Profile";
 import HodRegister from "../pages/hod/Register";
 import CoordinatorLayout from "../layouts/CoordinatorLayout";
 import CoordinatorDashboard from "../pages/coordinator/Dashboard";
+import CoordinatorProfile from "../pages/coordinator/Profile";
 
 function AppRoutes() {
   return (
@@ -30,6 +31,7 @@ function AppRoutes() {
         {/* COORDINATOR ROUTES */}
         <Route path="/coordinator" element={<CoordinatorLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="profile" element={<CoordinatorProfile />} />
           <Route path=":status" element={<CoordinatorDashboard />} />
         </Route>
 

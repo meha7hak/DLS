@@ -363,7 +363,8 @@ const labelStyle = {
 const valueStyle = {
   fontSize: "15px",
   color: "#1e293b",
-  fontWeight: 500
+  fontWeight: 500,
+  wordBreak: "break-all"
 };
 
 const pwBtnStyle = {
