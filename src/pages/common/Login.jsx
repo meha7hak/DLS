@@ -18,10 +18,13 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const pwEyeRef = useRef(null);
     const [loading, setLoading] = useState(false);
+    const [isColdStart, setIsColdStart] = useState(false);
+    const coldStartTimerRef = useRef(null);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setErrorMsg("");
+        setIsColdStart(false);
 
         if (!identifier || !password) {
             setErrorMsg("Please enter both ID/Email and password.");
@@ -35,6 +38,12 @@ function Login() {
         }
 
         setLoading(true);
+
+        // If response takes longer than 3 seconds, the free server is likely waking up
+        coldStartTimerRef.current = setTimeout(() => {
+            setIsColdStart(true);
+        }, 3000);
+
         try {
             const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: "POST",
@@ -63,6 +72,8 @@ function Login() {
         } catch (err) {
             setErrorMsg("Server error. Please try again later.");
         } finally {
+            clearTimeout(coldStartTimerRef.current);
+            setIsColdStart(false);
             setLoading(false);
         }
     };
@@ -162,6 +173,11 @@ function Login() {
                     <button type="submit" style={btnStyle} disabled={loading}>
                         {loading ? "Logging in..." : "Login"}
                     </button>
+                    {isColdStart && (
+                        <p style={{ marginTop: "10px", fontSize: "12px", color: "#64748b" }}>
+                            Connecting to the free tier backend... Usually takes ~50s to wake up!
+                        </p>
+                    )}
                 </form>
 
                 <p
