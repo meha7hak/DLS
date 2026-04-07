@@ -354,9 +354,7 @@ const labelStyle = {
 const valueStyle = {
   fontSize: "15px",
   color: "#1e293b",
-  fontWeight: 500,
-  wordBreak: "break-word",
-  overflowWrap: "anywhere"
+  fontWeight: 500
 };
 
 const pwBtnStyle = {
