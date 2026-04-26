@@ -138,10 +138,11 @@ function HodDashboard() {
 
   return (
     <div style={{ padding: isMobile() ? "10px" : "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>HOD Dashboard</h2>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>Recent Applications</h2>
 
       <div style={{
-        background: "#a48cc9",
+        background: "rgba(164, 140, 201, 0.6)",
+        backdropFilter: "blur(10px)",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -165,7 +166,7 @@ function HodDashboard() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "15px 20px",
-                    background: "#5B21B6",
+                    background: "rgba(91, 33, 182, 0.6)",
                     cursor: "pointer",
                     userSelect: "none"
                   }}
@@ -177,7 +178,7 @@ function HodDashboard() {
                 </div>
 
                 {expandedGroups[groupKey] && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "15px", background: "#a48cc9" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "15px", background: "rgba(164, 140, 201, 0.4)" }}>
                     {groupedRequests[groupKey].map((request) => (
                       <div key={request._id} style={{
                         display: "flex",
@@ -186,7 +187,7 @@ function HodDashboard() {
                         alignItems: isMobile() ? "flex-start" : "center",
                         padding: "20px",
                         borderRadius: "10px",
-                        background: "#5B21B6",
+                        background: "rgba(91, 33, 182, 0.7)",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                         color: "#fff",
                         gap: "15px"

@@ -89,8 +89,10 @@ function CoordinatorDashboard() {
 
   return (
     <div style={{ padding: isMobile() ? "10px" : "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>Recent Applications</h2>
       <div style={{
-        background: "#b49edb",
+        background: "rgba(180, 158, 219, 0.6)",
+        backdropFilter: "blur(10px)",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -113,7 +115,7 @@ function CoordinatorDashboard() {
                 alignItems: isMobile() ? "flex-start" : "center",
                 padding: "20px",
                 borderRadius: "10px",
-                background: "#bb1fbc82",
+                background: "rgba(187, 31, 188, 0.4)",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                 color: "#fff",
                 gap: "15px"

@@ -115,10 +115,11 @@ function FacultyDashboard() {
 
   return (
     <div style={{ padding: isMobile() ? "10px" : "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>{title}</h2>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b", textAlign: "center" }}>Recent Applications</h2>
 
       <div style={{
-        background: "#d15c78",
+        background: "rgba(209, 92, 120, 0.6)",
+        backdropFilter: "blur(10px)",
         borderRadius: "12px",
         padding: isMobile() ? "15px" : "24px",
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -140,7 +141,7 @@ function FacultyDashboard() {
                 alignItems: isMobile() ? "flex-start" : "center",
                 padding: "20px",
                 borderRadius: "10px",
-                background: "#9F1239",
+                background: "rgba(159, 18, 57, 0.6)",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                 color: "#fff",
                 gap: "15px"

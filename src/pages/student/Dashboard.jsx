@@ -17,7 +17,7 @@ function Dashboard() {
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
-    
+
     const data = localStorage.getItem("userInfo");
     if (data) {
       setUserInfo(JSON.parse(data));
@@ -26,7 +26,7 @@ function Dashboard() {
     const newSocket = io(API_BASE);
     newSocket.on("leaveCreated", () => fetchLeaves());
     newSocket.on("leaveUpdated", () => fetchLeaves());
-    
+
     return () => {
       window.removeEventListener('resize', handleResize);
       newSocket.disconnect();
@@ -51,7 +51,7 @@ function Dashboard() {
   };
 
   const handleDelete = async (id) => {
-    if(!window.confirm("Are you sure you want to delete this leave application?")) return;
+    if (!window.confirm("Are you sure you want to delete this leave application?")) return;
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/api/leave/delete/${id}`, {
@@ -64,7 +64,7 @@ function Dashboard() {
         const data = await res.json();
         alert(data.message || "Failed to delete");
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       alert("Error deleting application.");
     }
@@ -77,7 +77,7 @@ function Dashboard() {
   return (
     <div style={{ padding: isMobile ? "10px" : "0", maxWidth: "1200px", margin: "0 auto" }}>
       <h2 style={{ marginBottom: "20px", textTransform: "capitalize", color: "#1e293b", textAlign: "center" }}>
-        {userInfo ? `${userInfo.name}'s Dashboard` : "Dashboard"}
+        Recent Applications
       </h2>
 
       {/* STATS */}
@@ -94,10 +94,11 @@ function Dashboard() {
 
       {/* RECENT APPLICATIONS */}
       <div style={{
-        background: "#fff",
+        background: "rgba(255, 255, 255, 0.7)",
+        backdropFilter: "blur(10px)",
         borderRadius: "12px",
         padding: isMobile ? "15px" : "24px",
-        border: "1px solid #E2E8F0",
+        border: "1px solid rgba(226, 232, 240, 0.5)",
         maxWidth: "900px",
         margin: "0 auto"
       }}>
@@ -118,7 +119,7 @@ function Dashboard() {
                 padding: "16px",
                 border: "1px solid #f1f5f9",
                 borderRadius: "10px",
-                background: "#fafafa",
+                background: "rgba(255, 255, 255, 0.4)",
                 transition: "all 0.2s",
                 boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
                 gap: "15px"
@@ -145,55 +146,55 @@ function Dashboard() {
                     )}
                   </div>
                 </div>
-                
+
                 <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", flexDirection: isMobile ? "column" : "row", gap: "10px", width: isMobile ? "100%" : "auto" }}>
                   <StatusBadge status={leave.status} />
-                  
+
                   {(leave.status.includes("PENDING") || leave.status.includes("REJECTED")) && (
-                     <div style={{ display: "flex", gap: "8px" }}>
-                       <button
-                          onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}
-                          style={{
-                            background: "#fff",
-                            border: "1px solid #0D9488",
-                            color: "#0D9488",
-                            padding: "6px 12px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            transition: "all 0.2s"
-                          }}
-                          onMouseEnter={(e) => { e.target.style.background = "#0D9488"; e.target.style.color = "#fff"; }}
-                          onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#0D9488"; }}
-                       >
-                          Edit
-                       </button>
-                       <button
-                          onClick={() => handleDelete(leave._id)}
-                          style={{
-                            background: "#fff",
-                            border: "1px solid #EF4444",
-                            color: "#EF4444",
-                            padding: "6px 12px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            transition: "all 0.2s"
-                          }}
-                          onMouseEnter={(e) => { e.target.style.background = "#EF4444"; e.target.style.color = "#fff"; }}
-                          onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#EF4444"; }}
-                       >
-                          Delete
-                       </button>
-                     </div>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        onClick={() => navigate("/student/apply", { state: { editLeave: leave } })}
+                        style={{
+                          background: "#fff",
+                          border: "1px solid #0D9488",
+                          color: "#0D9488",
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          transition: "all 0.2s"
+                        }}
+                        onMouseEnter={(e) => { e.target.style.background = "#0D9488"; e.target.style.color = "#fff"; }}
+                        onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#0D9488"; }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(leave._id)}
+                        style={{
+                          background: "#fff",
+                          border: "1px solid #EF4444",
+                          color: "#EF4444",
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          transition: "all 0.2s"
+                        }}
+                        onMouseEnter={(e) => { e.target.style.background = "#EF4444"; e.target.style.color = "#fff"; }}
+                        onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#EF4444"; }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
             ))}
             {leaves.length > 7 && (
-              <button 
+              <button
                 onClick={() => setShowAllLeaves(!showAllLeaves)}
                 style={{
                   background: "#f8fafc",

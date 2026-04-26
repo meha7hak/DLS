@@ -1,12 +1,18 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { LayoutDashboard, User, Menu, LogOut, CheckCircle, XCircle } from "lucide-react";
-import ShapeGrid from "../components/Background";
+import Particles from "../components/Particles";
 
 function FacultyLayout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
+  const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const data = localStorage.getItem("userInfo");
+    if (data) setUserInfo(JSON.parse(data));
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,15 +35,19 @@ function FacultyLayout() {
 
   return (
     <>
-      <ShapeGrid
-        speed={0.5}
-        squareSize={40}
-        direction="left"
-        borderColor="#E11D48"
-        hoverFillColor="#FFE4E6"
-        shape="hexagon"
-        hoverTrailAmount={0}
-      />
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
+        <Particles
+          particleColors={["#d15c78", "#75001f", "#FEE2E2"]}
+          particleCount={200}
+          particleSpread={10}
+          speed={0.1}
+          particleBaseSize={100}
+          moveParticlesOnHover={true}
+          alphaParticles={false}
+          disableRotation={false}
+          pixelRatio={1}
+        />
+      </div>
       <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1, overflowX: "hidden" }}>
 
         {isMobile && !isCollapsed && (
@@ -53,7 +63,8 @@ function FacultyLayout() {
         <aside style={{
           width: isMobile ? (isCollapsed ? "0px" : "240px") : (isCollapsed ? "80px" : "240px"),
           transition: "width 0.3s ease",
-          background: "#d15c78",
+          background: "rgba(209, 92, 120, 0.5)",
+          backdropFilter: "blur(10px)",
           borderRight: "none",
           padding: (isMobile && isCollapsed) ? "0" : (isCollapsed ? "20px 10px" : "20px"),
           display: "flex",
@@ -116,23 +127,41 @@ function FacultyLayout() {
 
           <header style={{
             height: "60px",
-            background: "#d15c78",
+            background: "rgba(209, 92, 120, 0.4)",
+            backdropFilter: "blur(10px)",
             color: "#fff",
-            borderBottom: "none",
             display: "flex",
             alignItems: "center",
+            justifyContent: "space-between",
             padding: "0 20px",
-            gap: "15px"
+            gap: "15px",
+            position: "sticky",
+            top: 0,
+            zIndex: 10
           }}>
-            {isMobile && (
-              <button
-                onClick={() => setIsCollapsed(false)}
-                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#FEE2E2", display: "flex", alignItems: "center", padding: "4px" }}
-              >
-                <Menu size={24} />
-              </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+              {isMobile && (
+                <button
+                  onClick={() => setIsCollapsed(false)}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#FEE2E2", display: "flex", alignItems: "center", padding: "4px" }}
+                >
+                  <Menu size={24} />
+                </button>
+              )}
+              <h3 style={{ margin: 0 }}>Faculty Dashboard</h3>
+            </div>
+
+            {userInfo && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>{userInfo.name}</div>
+                  <div style={{ fontSize: "12px", color: "#FEE2E2" }}>{userInfo.role.toUpperCase()}</div>
+                </div>
+                <div style={{ width: "35px", height: "35px", borderRadius: "50%", background: "#9F1239", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>
+                  {userInfo.name.charAt(0).toUpperCase()}
+                </div>
+              </div>
             )}
-            <h3 style={{ margin: 0 }}>Faculty Dashboard</h3>
           </header>
 
           <main style={{ padding: "20px", flex: 1, overflowX: "auto" }}>
