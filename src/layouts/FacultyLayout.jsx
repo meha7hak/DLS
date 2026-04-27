@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, User, Menu, LogOut, CheckCircle, XCircle } from "lucide-react";
+import { LayoutDashboard, User, Menu, LogOut, CheckCircle, XCircle, BookOpen } from "lucide-react";
 import Particles from "../components/Particles";
 
 function FacultyLayout() {
@@ -90,6 +90,7 @@ function FacultyLayout() {
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
             <NavItem to="/faculty/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
+            <NavItem to="/faculty/dashboard#reports" icon={<BookOpen size={20} />} isCollapsed={isCollapsed && !isMobile}>Reports</NavItem>
             <NavItem to="/faculty/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
             <NavItem to="/faculty/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
             <NavItem to="/faculty/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>

@@ -20,6 +20,15 @@ function FacultyDashboard() {
     const newSocket = io(API_BASE);
     newSocket.on("leaveCreated", () => fetchRequests());
     newSocket.on("leaveUpdated", () => fetchRequests());
+
+    // Handle scroll to hash
+    if (window.location.hash === "#reports") {
+      setTimeout(() => {
+        const el = document.getElementById("reports");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 500);
+    }
+
     return () => newSocket.disconnect();
   }, []);
 
@@ -151,77 +160,103 @@ function FacultyDashboard() {
     <div style={{ padding: isMobile() ? "10px" : "20px", maxWidth: "1200px", margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
         <h2 style={{ margin: 0, color: "#1e293b" }}>{title}</h2>
-        <button 
-          onClick={generateReport}
-          style={{
-            background: "#0D9488",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "600",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            boxShadow: "0 4px 6px -1px rgba(13, 148, 136, 0.3)"
-          }}
-        >
-          Generate Report (CSV)
-        </button>
       </div>
 
       {!routeStatus ? (
-        <div style={{ display: "grid", gridTemplateColumns: isMobile() ? "1fr" : "1fr 1fr", gap: "20px" }}>
-          {/* Pending Section */}
-          <div style={{ gridColumn: isMobile() ? "1" : "1 / -1" }}>
-            <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Pending Actions</h3>
-            <div style={{ background: "rgba(209, 92, 120, 0.4)", backdropFilter: "blur(10px)", borderRadius: "12px", padding: "15px" }}>
-              {requests.filter(r => r.status === "PENDING_CI").length === 0 ? (
-                <p style={{ color: "#64748b", textAlign: "center" }}>No pending actions.</p>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {requests.filter(r => r.status === "PENDING_CI").map(req => <RequestCard key={req._id} request={req} isMobile={isMobile()} handleAction={handleAction} actionLoading={actionLoading} fetchCoordinatorDetails={fetchCoordinatorDetails} />)}
-                </div>
-              )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile() ? "1fr" : "1fr 1fr", gap: "20px" }}>
+            {/* Pending Section */}
+            <div style={{ gridColumn: isMobile() ? "1" : "1 / -1" }}>
+              <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Pending Actions</h3>
+              <div style={{ background: "rgba(209, 92, 120, 0.4)", backdropFilter: "blur(10px)", borderRadius: "12px", padding: "15px" }}>
+                {requests.filter(r => r.status === "PENDING_CI").length === 0 ? (
+                  <p style={{ color: "#64748b", textAlign: "center" }}>No pending actions.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {requests.filter(r => r.status === "PENDING_CI").map(req => <RequestCard key={req._id} request={req} isMobile={isMobile()} handleAction={handleAction} actionLoading={actionLoading} fetchCoordinatorDetails={fetchCoordinatorDetails} />)}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Approved Column */}
+            <div>
+              <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Approved Leaves</h3>
+              <div style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+                {requests.filter(r => r.status === "FINAL_APPROVED" || r.status === "PENDING_HOD").length === 0 ? (
+                  <p style={{ color: "#64748b", textAlign: "center" }}>No approved leaves.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {requests.filter(r => r.status === "FINAL_APPROVED" || r.status === "PENDING_HOD").slice(0, 5).map(req => (
+                      <div key={req._id} style={{ padding: "10px", background: "#fff", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontWeight: "600", fontSize: "14px" }}>{req.student?.name}</div>
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>{req.eventName} • {new Date(req.eventDate).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Rejected Column */}
+            <div>
+              <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Rejected Leaves</h3>
+              <div style={{ background: "rgba(239, 68, 68, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
+                {requests.filter(r => r.status.includes("REJECTED")).length === 0 ? (
+                  <p style={{ color: "#64748b", textAlign: "center" }}>No rejected leaves.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {requests.filter(r => r.status.includes("REJECTED")).slice(0, 5).map(req => (
+                      <div key={req._id} style={{ padding: "10px", background: "#fff", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontWeight: "600", fontSize: "14px" }}>{req.student?.name}</div>
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>{req.eventName} • {new Date(req.eventDate).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Approved Column */}
-          <div>
-            <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Approved Leaves</h3>
-            <div style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
-              {requests.filter(r => r.status === "FINAL_APPROVED" || r.status === "PENDING_HOD").length === 0 ? (
-                <p style={{ color: "#64748b", textAlign: "center" }}>No approved leaves.</p>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {requests.filter(r => r.status === "FINAL_APPROVED" || r.status === "PENDING_HOD").slice(0, 5).map(req => (
-                    <div key={req._id} style={{ padding: "10px", background: "#fff", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                      <div style={{ fontWeight: "600", fontSize: "14px" }}>{req.student?.name}</div>
-                      <div style={{ fontSize: "12px", color: "#64748b" }}>{req.eventName} • {new Date(req.eventDate).toLocaleDateString()}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Rejected Column */}
-          <div>
-            <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Rejected Leaves</h3>
-            <div style={{ background: "rgba(239, 68, 68, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
-              {requests.filter(r => r.status.includes("REJECTED")).length === 0 ? (
-                <p style={{ color: "#64748b", textAlign: "center" }}>No rejected leaves.</p>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {requests.filter(r => r.status.includes("REJECTED")).slice(0, 5).map(req => (
-                    <div key={req._id} style={{ padding: "10px", background: "#fff", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                      <div style={{ fontWeight: "600", fontSize: "14px" }}>{req.student?.name}</div>
-                      <div style={{ fontSize: "12px", color: "#64748b" }}>{req.eventName} • {new Date(req.eventDate).toLocaleDateString()}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+          {/* Reports Section */}
+          <div id="reports" style={{ marginTop: "20px", scrollMarginTop: "80px" }}>
+            <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Reports</h3>
+            <div style={{ 
+              background: "#fff", 
+              borderRadius: "12px", 
+              padding: "24px", 
+              border: "1px solid #E2E8F0",
+              display: "flex",
+              flexDirection: isMobile() ? "column" : "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "20px"
+            }}>
+              <div>
+                <h4 style={{ margin: "0 0 8px 0", color: "#1e293b" }}>Download Comprehensive Report</h4>
+                <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
+                  Generate a CSV file containing all leave applications for your department and semester.
+                </p>
+              </div>
+              <button 
+                onClick={generateReport}
+                style={{
+                  background: "#0D9488",
+                  color: "#fff",
+                  border: "none",
+                  padding: "12px 24px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(13, 148, 136, 0.3)",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                Download Full Report (CSV)
+              </button>
             </div>
           </div>
         </div>
