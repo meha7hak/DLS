@@ -120,7 +120,7 @@ function FacultyDashboard() {
 
   let title = "Requests Overview";
   if (routeStatus === "approved") title = "Approved Leaves";
-  if (routeStatus === "rejected") title = "Rejected Leaves";
+  else if (routeStatus === "rejected") title = "Rejected Leaves";
 
   const generateReport = () => {
     if (requests.length === 0) {
@@ -162,9 +162,9 @@ function FacultyDashboard() {
         <h2 style={{ margin: 0, color: "#1e293b" }}>{title}</h2>
       </div>
 
-      {!routeStatus ? (
+      {(!routeStatus || routeStatus === "dashboard" || window.location.hash === "#reports") ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile() ? "1fr" : "1fr 1fr", gap: "20px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile() ? "1fr" : "1fr 1fr 1fr", gap: "20px" }}>
             {/* Pending Section */}
             <div style={{ gridColumn: isMobile() ? "1" : "1 / -1" }}>
               <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Pending Actions</h3>
@@ -182,7 +182,7 @@ function FacultyDashboard() {
             {/* Approved Column */}
             <div>
               <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Approved Leaves</h3>
-              <div style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+              <div style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(16, 185, 129, 0.2)", minHeight: "150px", display: "flex", flexDirection: "column" }}>
                 {requests.filter(r => r.status === "FINAL_APPROVED" || r.status === "PENDING_HOD").length === 0 ? (
                   <p style={{ color: "#64748b", textAlign: "center" }}>No approved leaves.</p>
                 ) : (
@@ -197,11 +197,10 @@ function FacultyDashboard() {
                 )}
               </div>
             </div>
-
             {/* Rejected Column */}
             <div>
               <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Rejected Leaves</h3>
-              <div style={{ background: "rgba(239, 68, 68, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
+              <div style={{ background: "rgba(239, 68, 68, 0.1)", borderRadius: "12px", padding: "15px", border: "1px solid rgba(239, 68, 68, 0.2)", minHeight: "150px", display: "flex", flexDirection: "column" }}>
                 {requests.filter(r => r.status.includes("REJECTED")).length === 0 ? (
                   <p style={{ color: "#64748b", textAlign: "center" }}>No rejected leaves.</p>
                 ) : (
@@ -216,49 +215,48 @@ function FacultyDashboard() {
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Reports Section */}
-          <div id="reports" style={{ marginTop: "20px", scrollMarginTop: "80px" }}>
-            <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Reports</h3>
-            <div style={{ 
-              background: "#fff", 
-              borderRadius: "12px", 
-              padding: "24px", 
-              border: "1px solid #E2E8F0",
-              display: "flex",
-              flexDirection: isMobile() ? "column" : "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "20px"
-            }}>
-              <div>
-                <h4 style={{ margin: "0 0 8px 0", color: "#1e293b" }}>Download Comprehensive Report</h4>
-                <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
-                  Generate a CSV file containing all leave applications for your department and semester.
+            {/* Reports Column */}
+            <div id="reports" style={{ scrollMarginTop: "80px" }}>
+              <h3 style={{ color: "#1e293b", marginBottom: "15px" }}>Reports</h3>
+              <div style={{ 
+                background: "rgba(13, 148, 136, 0.1)", 
+                borderRadius: "12px", 
+                padding: "15px", 
+                border: "1px solid rgba(13, 148, 136, 0.2)", 
+                display: "flex", 
+                flexDirection: "column",
+                minHeight: "150px"
+              }}>
+                <p style={{ color: "#64748b", fontSize: "14px", marginBottom: "15px" }}>
+                  Generate a CSV file containing all leave applications for your department.
                 </p>
+                <div style={{ flex: 1 }}></div>
+                <button 
+                  onClick={generateReport}
+                  style={{
+                    background: "#0D9488",
+                    color: "#fff",
+                    border: "none",
+                    padding: "12px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    boxShadow: "0 4px 6px -1px rgba(13, 148, 136, 0.3)",
+                    width: "100%"
+                  }}
+                >
+                  Generate Report
+                </button>
               </div>
-              <button 
-                onClick={generateReport}
-                style={{
-                  background: "#0D9488",
-                  color: "#fff",
-                  border: "none",
-                  padding: "12px 24px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  boxShadow: "0 4px 6px -1px rgba(13, 148, 136, 0.3)",
-                  whiteSpace: "nowrap"
-                }}
-              >
-                Download Full Report (CSV)
-              </button>
             </div>
           </div>
+
+
         </div>
       ) : (
         <div style={{

@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { LayoutDashboard, User, Menu, LogOut, CheckCircle, XCircle, BookOpen } from "lucide-react";
 import Particles from "../components/Particles";
@@ -8,6 +8,7 @@ function FacultyLayout() {
   const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const data = localStorage.getItem("userInfo");
@@ -89,11 +90,11 @@ function FacultyLayout() {
           </div>
 
           <div style={{ opacity: (isMobile && isCollapsed) ? 0 : 1, transition: "opacity 0.2s" }}>
-            <NavItem to="/faculty/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile}>Dashboard</NavItem>
-            <NavItem to="/faculty/dashboard#reports" icon={<BookOpen size={20} />} isCollapsed={isCollapsed && !isMobile}>Reports</NavItem>
-            <NavItem to="/faculty/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Approved Leaves</NavItem>
-            <NavItem to="/faculty/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile}>Rejected Leaves</NavItem>
-            <NavItem to="/faculty/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile}>Profile</NavItem>
+            <NavItem to="/faculty/dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed && !isMobile} location={location} end>Dashboard</NavItem>
+            <NavItem to="/faculty/dashboard#reports" icon={<BookOpen size={20} />} isCollapsed={isCollapsed && !isMobile} location={location}>Reports</NavItem>
+            <NavItem to="/faculty/approved" icon={<CheckCircle size={20} />} isCollapsed={isCollapsed && !isMobile} location={location}>Approved Leaves</NavItem>
+            <NavItem to="/faculty/rejected" icon={<XCircle size={20} />} isCollapsed={isCollapsed && !isMobile} location={location}>Rejected Leaves</NavItem>
+            <NavItem to="/faculty/profile" icon={<User size={20} />} isCollapsed={isCollapsed && !isMobile} location={location}>Profile</NavItem>
           </div>
 
           <div style={{ flex: 1 }}></div>
@@ -176,24 +177,35 @@ function FacultyLayout() {
   );
 }
 
-function NavItem({ to, icon, children, isCollapsed }) {
+function NavItem({ to, icon, children, isCollapsed, end, location }) {
+  const currentHash = location.hash;
+  
   return (
     <NavLink
       to={to}
+      end={end}
       title={isCollapsed ? children : ""}
-      style={({ isActive }) => ({
-        display: "flex",
-        alignItems: "center",
-        justifyContent: isCollapsed ? "center" : "flex-start",
-        gap: "10px",
-        padding: "10px",
-        borderRadius: "6px",
-        marginBottom: "8px",
-        background: isActive ? "#9F1239" : "transparent",
-        color: isActive ? "#fff" : "#FFE4E6",
-        whiteSpace: "nowrap",
-        transition: "all 0.2s ease"
-      })}
+      style={({ isActive }) => {
+        // If the link has a hash, only highlight if hash matches
+        // If the link has no hash, only highlight if current location has no hash
+        const reallyActive = to.includes('#') 
+          ? currentHash === '#' + to.split('#')[1]
+          : isActive && (currentHash === "" || currentHash === "#");
+
+        return {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: isCollapsed ? "center" : "flex-start",
+          gap: "10px",
+          padding: "10px",
+          borderRadius: "6px",
+          marginBottom: "8px",
+          background: reallyActive ? "#9F1239" : "transparent",
+          color: reallyActive ? "#fff" : "#FFE4E6",
+          whiteSpace: "nowrap",
+          transition: "all 0.2s ease"
+        };
+      }}
     >
       {icon}
       {!isCollapsed && <span>{children}</span>}
