@@ -110,7 +110,7 @@ function Dashboard() {
           <p style={{ color: "#64748b", textAlign: "center", padding: "20px" }}>No recent applications found.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            {(showAllLeaves ? leaves : leaves.slice(0, 7)).map((leave) => (
+            {(showAllLeaves ? leaves : leaves.slice(0, 2)).map((leave) => (
               <div key={leave._id} style={{
                 display: "flex",
                 flexDirection: isMobile ? "column" : "row",
@@ -193,7 +193,7 @@ function Dashboard() {
                 </div>
               </div>
             ))}
-            {leaves.length > 7 && (
+            {leaves.length > 2 && (
               <button
                 onClick={() => setShowAllLeaves(!showAllLeaves)}
                 style={{

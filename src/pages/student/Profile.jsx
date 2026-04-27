@@ -3,6 +3,11 @@ import { User, Mail, GraduationCap, Building2, BookOpen, Camera, Key, Eye, EyeOf
 
 function Profile() {
   const [userInfo, setUserInfo] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Profile Edit State
+  const [editingSemester, setEditingSemester] = useState(false);
+  const [newSemester, setNewSemester] = useState("");
 
   // Image Upload State
   const [uploading, setUploading] = useState(false);
@@ -24,11 +29,42 @@ function Profile() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+
     const data = localStorage.getItem("userInfo");
     if (data) {
-      setUserInfo(JSON.parse(data));
+      const parsed = JSON.parse(data);
+      setUserInfo(parsed);
+      setNewSemester(parsed.semester || "");
     }
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const handleSemesterUpdate = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ semester: newSemester })
+      });
+
+      if (res.ok) {
+        const updatedUser = await res.json();
+        setUserInfo(updatedUser);
+        localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+        setEditingSemester(false);
+      } else {
+        alert("Failed to update semester");
+      }
+    } catch (err) {
+      alert("Error updating semester");
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -104,7 +140,10 @@ function Profile() {
 
   return (
     <div style={containerStyle}>
-      <div style={cardStyle}>
+      <div style={{
+        ...cardStyle,
+        padding: isMobile ? "20px" : "40px",
+      }}>
 
         {/* PROFILE HEADER START */}
         <div style={headerStyle}>
@@ -144,7 +183,7 @@ function Profile() {
           {userInfo.email && (
             <div style={detailRowStyle}>
               <div style={iconBoxStyle}><Mail size={18} color="#0D9488" /></div>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={labelStyle}>Email Address</div>
                 <div style={valueStyle}>{userInfo.email}</div>
               </div>
@@ -154,7 +193,7 @@ function Profile() {
           {userInfo.rollno && (
             <div style={detailRowStyle}>
               <div style={iconBoxStyle}><GraduationCap size={18} color="#0D9488" /></div>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={labelStyle}>University Roll No</div>
                 <div style={valueStyle}>{userInfo.rollno}</div>
               </div>
@@ -164,7 +203,7 @@ function Profile() {
           {userInfo.department && (
             <div style={detailRowStyle}>
               <div style={iconBoxStyle}><Building2 size={18} color="#0D9488" /></div>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={labelStyle}>Branch / Department</div>
                 <div style={valueStyle}>{userInfo.department}</div>
               </div>
@@ -174,9 +213,33 @@ function Profile() {
           {userInfo.semester && (
             <div style={detailRowStyle}>
               <div style={iconBoxStyle}><BookOpen size={18} color="#0D9488" /></div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <div style={labelStyle}>Semester</div>
-                <div style={valueStyle}>{userInfo.semester}</div>
+                {editingSemester ? (
+                  <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                    <select
+                      value={newSemester}
+                      onChange={(e) => setNewSemester(e.target.value)}
+                      style={{ ...inputStyle, padding: "4px 8px", width: "auto" }}
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <button onClick={handleSemesterUpdate} style={{ ...submitBtnStyle, padding: "4px 12px", fontSize: "12px" }}>Save</button>
+                    <button onClick={() => setEditingSemester(false)} style={{ ...submitBtnStyle, background: "#e2e8f0", color: "#334155", padding: "4px 12px", fontSize: "12px" }}>Cancel</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={valueStyle}>{userInfo.semester}</div>
+                    <button
+                      onClick={() => setEditingSemester(true)}
+                      style={{ background: "none", border: "none", color: "#0D9488", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -272,7 +335,7 @@ const containerStyle = {
 const cardStyle = {
   background: "#fff",
   borderRadius: "16px",
-  padding: "40px",
+  padding: window.innerWidth < 768 ? "20px" : "40px",
   border: "1px solid #E2E8F0",
   width: "100%",
   maxWidth: "500px",
@@ -343,7 +406,8 @@ const detailRowStyle = {
   alignItems: "flex-start",
   gap: "15px",
   paddingBottom: "15px",
-  borderBottom: "1px solid #f1f5f9"
+  borderBottom: "1px solid #f1f5f9",
+  flexWrap: "nowrap"
 };
 
 const iconBoxStyle = {

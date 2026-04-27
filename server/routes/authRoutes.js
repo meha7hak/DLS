@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, changePassword, updateProfilePic } from "../controllers/authController.js";
+import { register, login, changePassword, updateProfilePic, updateProfile } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadmiddleware.js";
 
@@ -11,5 +11,6 @@ router.post("/login", login);
 // Protected routes
 router.put("/change-password", protect, changePassword);
 router.put("/profile-pic", protect, upload.single("profilePic"), updateProfilePic);
+router.put("/profile", protect, updateProfile);
 
 export default router;

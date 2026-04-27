@@ -8,6 +8,7 @@ function ApplyLeave() {
   const [step, setStep] = useState(0);
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const [eventName, setEventName] = useState("");
   const [coordinatorName, setCoordinatorName] = useState("");
@@ -26,6 +27,9 @@ function ApplyLeave() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    
     if (editLeave) {
       setEventName(editLeave.eventName);
       setCoordinatorName(editLeave.coordinatorName);
@@ -37,13 +41,29 @@ function ApplyLeave() {
       setPhone(editLeave.coordinatorPhone);
       setSlots(editLeave.slots);
     }
+
+    return () => window.removeEventListener('resize', handleResize);
   }, [editLeave]);
 
-  const toggleSlot = (slot) => {
+  const SLOT_DEFINITIONS = [
+    { id: 1, label: "09:05 – 10:00", section: "MORNING" },
+    { id: 2, label: "10:00 – 10:55", section: "MORNING" },
+    { id: 3, label: "10:55 – 11:50", section: "MORNING" },
+    { id: 4, label: "11:50 – 12:45", section: "MORNING" },
+    { id: "break", label: "12:45 – 01:30 (Lunch Break)", section: "LUNCH", blocked: true },
+    { id: 5, label: "01:30 – 02:20", section: "EVENING" },
+    { id: 6, label: "02:20 – 03:10", section: "EVENING" },
+    { id: 7, label: "03:10 – 04:00", section: "EVENING" },
+  ];
+
+  const toggleSlot = (slotId) => {
+    const slot = SLOT_DEFINITIONS.find(s => s.id === slotId);
+    if (slot?.blocked) return;
+
     setSlots(prev =>
-      prev.includes(slot)
-        ? prev.filter(s => s !== slot)
-        : [...prev, slot]
+      prev.includes(slotId)
+        ? prev.filter(s => s !== slotId)
+        : [...prev, slotId]
     );
   };
 
@@ -84,7 +104,7 @@ function ApplyLeave() {
           body: JSON.stringify(payload)
         });
       }
-      
+
       if (res.ok) {
         navigate("/student/dashboard");
       } else {
@@ -104,28 +124,30 @@ function ApplyLeave() {
 
       <div style={{
         background: "#fff",
-        padding: "30px",
+        padding: isMobile ? "20px" : "30px",
         borderRadius: "12px",
         border: "1px solid #E2E8F0",
-        maxWidth: "600px"
+        maxWidth: "600px",
+        width: "100%",
+        boxSizing: "border-box"
       }}>
         <Stepper step={step} />
 
         {/* STEP 1 */}
         {step === 0 && (
           <div className="animate-fade-in">
-            <h4 style={{marginBottom: "10px"}}>Event Details</h4>
-            <input 
-              placeholder="Event Name" 
-              style={inputStyle} 
+            <h4 style={{ marginBottom: "10px" }}>Event Details</h4>
+            <input
+              placeholder="Event Name"
+              style={inputStyle}
               value={eventName}
               onChange={(e) => setEventName(e.target.value)}
             />
 
-            <h4 style={{marginTop: "15px", marginBottom: "10px"}}>Coordinator Details</h4>
-            <input 
-              placeholder="Coordinator Name" 
-              style={inputStyle} 
+            <h4 style={{ marginTop: "15px", marginBottom: "10px" }}>Coordinator Details</h4>
+            <input
+              placeholder="Coordinator Name"
+              style={inputStyle}
               value={coordinatorName}
               onChange={(e) => setCoordinatorName(e.target.value)}
             />
@@ -141,9 +163,9 @@ function ApplyLeave() {
             />
             {emailError && <p style={errorStyle}>{emailError}</p>}
 
-            <input 
-              placeholder="Department" 
-              style={inputStyle} 
+            <input
+              placeholder="Department"
+              style={inputStyle}
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
             />
@@ -170,8 +192,8 @@ function ApplyLeave() {
                 setGeneralError("");
 
                 if (!eventName || !coordinatorName || !department || !email || !phone) {
-                   setGeneralError("Please fill in all details first.");
-                   valid = false;
+                  setGeneralError("Please fill in all details first.");
+                  valid = false;
                 }
 
                 if (!validateEmail(email)) {
@@ -196,38 +218,71 @@ function ApplyLeave() {
         {/* STEP 2 */}
         {step === 1 && (
           <div className="animate-fade-in">
-            <h4 style={{marginBottom: "10px"}}>Event Date</h4>
-            <input 
-              type="date" 
-              style={inputStyle} 
+            <h4 style={{ marginBottom: "10px" }}>Event Date</h4>
+            <input
+              type="date"
+              style={inputStyle}
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
             />
 
-            <h4 style={{marginTop: "15px", marginBottom: "10px"}}>Select Slots</h4>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "15px" }}>
-              {[1, 2, 3, 4, 5, 6, 7].map(slot => (
-                <label key={slot} style={slotBox(slots.includes(slot))} className="transition-all duration-300">
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    onChange={() => toggleSlot(slot)}
-                  />
-                  Slot {slot}
-                </label>
-              ))}
-            </div>
+            <h4 style={{ marginTop: "15px", marginBottom: "10px" }}>Select Slots</h4>
+
+            {["MORNING", "LUNCH", "EVENING"].map(section => (
+              <div key={section} style={{ marginBottom: "15px" }}>
+                <h5 style={{
+                  fontSize: "12px",
+                  color: "#64748b",
+                  marginBottom: "8px",
+                  letterSpacing: "0.05em",
+                  borderBottom: "1px solid #f1f5f9",
+                  paddingBottom: "4px"
+                }}>
+                  {section}
+                </h5>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  {SLOT_DEFINITIONS.filter(s => s.section === section).map(slot => (
+                    <label
+                      key={slot.id}
+                      style={{
+                        ...slotBox(slots.includes(slot.id)),
+                        opacity: slot.blocked ? 0.6 : 1,
+                        cursor: slot.blocked ? "not-allowed" : "pointer",
+                        background: slot.blocked ? "#f8fafc" : (slots.includes(slot.id) ? "#CCFBF1" : "#fff"),
+                        borderColor: slot.blocked ? "#e2e8f0" : (slots.includes(slot.id) ? "#0D9488" : "#E2E8F0"),
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        minWidth: isMobile ? "calc(50% - 5px)" : "120px",
+                        flex: isMobile ? "1 1 auto" : "0 1 auto"
+                      }}
+                      className="transition-all duration-300"
+                    >
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        disabled={slot.blocked}
+                        onChange={() => toggleSlot(slot.id)}
+                        checked={slots.includes(slot.id)}
+                      />
+                      <span style={{ fontSize: "11px", fontWeight: "600" }}>{slot.id === "break" ? "BREAK" : `SLOT ${slot.id}`}</span>
+                      <span style={{ fontSize: "12px" }}>{slot.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
 
             <p style={{ marginTop: "10px", fontSize: "14px", color: "#64748b" }}>
               Total Lectures: {slots.length}
             </p>
 
             <div style={{ display: "flex", gap: "10px" }}>
-              <button style={{...btnStyle, background: "#e2e8f0", color: "#334155"}} onClick={() => setStep(0)}>
+              <button style={{ ...btnStyle, background: "#e2e8f0", color: "#334155" }} onClick={() => setStep(0)}>
                 Back
               </button>
-              <button 
-                style={btnStyle} 
+              <button
+                style={btnStyle}
                 onClick={() => {
                   if (!eventDate) {
                     setGeneralError("Please select an event date");
@@ -244,7 +299,7 @@ function ApplyLeave() {
                 Next
               </button>
             </div>
-            {generalError && <p style={{...errorStyle, marginTop: "10px"}}>{generalError}</p>}
+            {generalError && <p style={{ ...errorStyle, marginTop: "10px" }}>{generalError}</p>}
           </div>
         )}
 
@@ -257,20 +312,20 @@ function ApplyLeave() {
               <p style={detailStyle}><strong>Event:</strong> {eventName}</p>
               <p style={detailStyle}><strong>Date:</strong> {eventDate}</p>
               <p style={detailStyle}><strong>Coordinator:</strong> {coordinatorName} ({department})</p>
-              <p style={detailStyle}><strong>Total Slots:</strong> {slots.length} [{slots.join(', ')}]</p>
+              <p style={detailStyle}><strong>Total Slots:</strong> {slots.length} [{slots.sort().join(', ')}]</p>
             </div>
 
             {generalError && <p style={errorStyle}>{generalError}</p>}
 
             <div style={{ display: "flex", gap: "10px" }}>
-              <button 
-                style={{...btnStyle, background: "#e2e8f0", color: "#334155"}} 
+              <button
+                style={{ ...btnStyle, background: "#e2e8f0", color: "#334155" }}
                 onClick={() => setStep(1)}
               >
                 Back
               </button>
-              <button 
-                style={btnStyle} 
+              <button
+                style={btnStyle}
                 onClick={submitApplication}
                 disabled={loading}
               >

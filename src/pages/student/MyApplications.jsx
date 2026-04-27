@@ -10,16 +10,23 @@ function MyApplications() {
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [timelineData, setTimelineData] = useState([]);
   const [timelineLoading, setTimelineLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+
     fetchLeaves();
     const newSocket = io(API_BASE);
     newSocket.on("leaveCreated", () => fetchLeaves());
     newSocket.on("leaveUpdated", () => fetchLeaves());
-    return () => newSocket.disconnect();
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      newSocket.disconnect();
+    };
   }, []);
 
   const fetchLeaves = async () => {
@@ -140,7 +147,7 @@ function MyApplications() {
       <div style={{
         background: "#fff",
         borderRadius: "12px",
-        padding: "24px",
+        padding: isMobile ? "15px" : "24px",
         border: "1px solid #E2E8F0",
         maxWidth: "900px"
       }}>

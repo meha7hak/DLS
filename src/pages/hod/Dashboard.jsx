@@ -208,10 +208,11 @@ function HodDashboard() {
                               <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.coordinatorName}</p>
                               <button
                                 onClick={(e) => { e.stopPropagation(); fetchCoordinatorDetails(request); }}
-                                style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: 0, display: "flex" }}
+                                style={{ background: "rgba(255,255,255,0.2)", border: "none", cursor: "pointer", color: "#fff", padding: "2px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "4px", fontSize: "12px" }}
                                 title="View Coordinator Details"
                               >
-                                <Info size={16} />
+                                <Info size={14} />
+                                Details
                               </button>
                             </div>
                             <p style={{ margin: 0, fontSize: "14px", color: "#E9D5FF" }}>{request.slots.length} Slots</p>

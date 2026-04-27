@@ -157,3 +157,30 @@ export const updateProfilePic = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
+export const updateProfile = async (req, res) => {
+    const { semester } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        if (user) {
+            if (semester) user.semester = semester;
+            const updatedUser = await user.save();
+            res.json({
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                rollno: updatedUser.rollno,
+                employeeID: updatedUser.employeeID,
+                department: updatedUser.department,
+                semester: updatedUser.semester,
+                profilePic: updatedUser.profilePic,
+                token: generateToken(updatedUser._id)
+            });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
